@@ -95,4 +95,12 @@ a {
   color: Var(--important2);
 }
 
+.card-title {
+  color: Var(--important1);
+}
+
+.card-text {
+  color: Var(--dark);
+}
+
 
