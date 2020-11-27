@@ -108,3 +108,6 @@ a {
 .top {
     margin-top: 300px;
 }
+.row {
+    max-width: 100px;
+}
