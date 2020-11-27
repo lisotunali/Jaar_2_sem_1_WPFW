@@ -91,6 +91,30 @@ p {
   color: Var(--important3);
 }
 
+h4 {
+    font-size: 24px;
+    color: Var(--important2);
+    padding: 10px 0px 10px 0px;
+    border-top: solid 1px var(--important2);
+    border-bottom: solid 1px var(--important2);
+}
+/*
+@media only screen (max-width: 600px) 
+h4 {
+    font-size: 24px;
+    color: Var(--important2);
+}
+*/
+
+.home-text {
+    align-content: center;
+}
+
+.home-content {
+    margin-top: 20px;
+}
+
+
 a {
   color: Var(--important2);
 }
