@@ -11,5 +11,7 @@ namespace WDPR_MVC.Models
         public int Id { get; set; }
         [Required]
         public string Naam { get; set; }
+
+        public ICollection<Melding> Meldingen { get; set; } = new List<Melding>();
     }
 }

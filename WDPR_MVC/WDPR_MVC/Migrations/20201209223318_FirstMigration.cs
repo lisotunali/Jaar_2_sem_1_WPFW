@@ -48,6 +48,19 @@ namespace WDPR_MVC.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Categorie",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Naam = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categorie", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -159,15 +172,15 @@ namespace WDPR_MVC.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    AuteurId = table.Column<string>(nullable: true),
-                    Titel = table.Column<string>(nullable: true),
-                    Beschrijving = table.Column<string>(nullable: true),
+                    AuteurId = table.Column<string>(nullable: false),
+                    Titel = table.Column<string>(nullable: false),
+                    Beschrijving = table.Column<string>(nullable: false),
                     AantalLikes = table.Column<int>(nullable: false),
                     DatumAangemaakt = table.Column<DateTime>(nullable: false),
                     KeerBekeken = table.Column<int>(nullable: false),
                     IsClosed = table.Column<bool>(nullable: false),
-                    CategorieId = table.Column<int>(nullable: false),
-                    IsAnonymous = table.Column<bool>(nullable: false)
+                    IsAnonymous = table.Column<bool>(nullable: false),
+                    CategorieId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -177,27 +190,42 @@ namespace WDPR_MVC.Migrations
                         column: x => x.AuteurId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Melding_Categorie_CategorieId",
+                        column: x => x.CategorieId,
+                        principalTable: "Categorie",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Categorie",
+                name: "Comment",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Naam = table.Column<string>(nullable: false),
-                    MeldingId = table.Column<int>(nullable: true)
+                    MeldingId = table.Column<int>(nullable: false),
+                    AuteurCommentId = table.Column<string>(nullable: false),
+                    Inhoud = table.Column<string>(nullable: false),
+                    DatumAangemaakt = table.Column<DateTime>(nullable: false),
+                    AantalLikes = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Categorie", x => x.Id);
+                    table.PrimaryKey("PK_Comment", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Categorie_Melding_MeldingId",
+                        name: "FK_Comment_AspNetUsers_AuteurCommentId",
+                        column: x => x.AuteurCommentId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Comment_Melding_MeldingId",
                         column: x => x.MeldingId,
                         principalTable: "Melding",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -262,20 +290,30 @@ namespace WDPR_MVC.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Categorie_MeldingId",
-                table: "Categorie",
-                column: "MeldingId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Categorie_Naam",
                 table: "Categorie",
                 column: "Naam",
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Comment_AuteurCommentId",
+                table: "Comment",
+                column: "AuteurCommentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Comment_MeldingId",
+                table: "Comment",
+                column: "MeldingId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Melding_AuteurId",
                 table: "Melding",
                 column: "AuteurId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Melding_CategorieId",
+                table: "Melding",
+                column: "CategorieId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Report_AuteurReportId",
@@ -301,7 +339,7 @@ namespace WDPR_MVC.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Categorie");
+                name: "Comment");
 
             migrationBuilder.DropTable(
                 name: "Report");
@@ -314,6 +352,9 @@ namespace WDPR_MVC.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Categorie");
         }
     }
 }

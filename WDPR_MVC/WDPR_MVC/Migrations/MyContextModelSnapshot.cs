@@ -219,21 +219,48 @@ namespace WDPR_MVC.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int?>("MeldingId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Naam")
                         .IsRequired()
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MeldingId");
-
                     b.HasIndex("Naam")
                         .IsUnique();
 
                     b.ToTable("Categorie");
+                });
+
+            modelBuilder.Entity("WDPR_MVC.Models.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("AantalLikes")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AuteurCommentId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
+                    b.Property<DateTime>("DatumAangemaakt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Inhoud")
+                        .IsRequired()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<int>("MeldingId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuteurCommentId");
+
+                    b.HasIndex("MeldingId");
+
+                    b.ToTable("Comment");
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.Melding", b =>
@@ -246,9 +273,11 @@ namespace WDPR_MVC.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("AuteurId")
+                        .IsRequired()
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
                     b.Property<string>("Beschrijving")
+                        .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<int>("CategorieId")
@@ -267,11 +296,14 @@ namespace WDPR_MVC.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Titel")
+                        .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AuteurId");
+
+                    b.HasIndex("CategorieId");
 
                     b.ToTable("Melding");
                 });
@@ -342,18 +374,34 @@ namespace WDPR_MVC.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("WDPR_MVC.Models.Categorie", b =>
+            modelBuilder.Entity("WDPR_MVC.Models.Comment", b =>
                 {
-                    b.HasOne("WDPR_MVC.Models.Melding", null)
-                        .WithMany("Categorie")
-                        .HasForeignKey("MeldingId");
+                    b.HasOne("WDPR_MVC.Areas.Identity.Data.ApplicationUser", "AuteurComment")
+                        .WithMany()
+                        .HasForeignKey("AuteurCommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WDPR_MVC.Models.Melding", "Melding")
+                        .WithMany("Comments")
+                        .HasForeignKey("MeldingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.Melding", b =>
                 {
                     b.HasOne("WDPR_MVC.Areas.Identity.Data.ApplicationUser", "Auteur")
                         .WithMany("Meldingen")
-                        .HasForeignKey("AuteurId");
+                        .HasForeignKey("AuteurId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WDPR_MVC.Models.Categorie", "Categorie")
+                        .WithMany("Meldingen")
+                        .HasForeignKey("CategorieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.Report", b =>
