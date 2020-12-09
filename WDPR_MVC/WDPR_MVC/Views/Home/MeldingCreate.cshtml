@@ -1,0 +1,42 @@
+@{
+    ViewData["Title"] = "Nieuwe Melding maken";
+}
+
+<div>
+    <h1 class="display-4 text-center">Maak Melding</h1>
+
+    <form>
+        <div class="form-group">
+            <label for="titelMelding">Titel van de melding</label>
+            <input type="email" class="form-control" id="titelMelding">
+        </div>
+        <div class="form-group">
+            <label for="meldingBody">Beschrijf uw melding</label>
+            <textarea class="form-control" id="meldingBody" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="uploadFoto">Upload foto</label>
+            <input type="file" class="form-control-file" id="uploadFoto">
+        </div>
+        <div class="form-group">
+            <label for="exampleFormControlSelect1">Categorie</label>
+            <select class="form-control" id="exampleFormControlSelect1">
+                <option></option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="typeMelding">Type melding</label>
+            <select class="form-control" id="exampleFormControlSelect1">
+                <option></option>
+                <option>Publiekelijk</option>
+                <option>Anoniem</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
