@@ -12,6 +12,9 @@ namespace WDPR_MVC.Data
 {
     public class MyContext : IdentityDbContext<ApplicationUser>
     {
+        public DbSet<Melding> Meldingen { get; set; }
+        public DbSet<Categorie> Categorieen { get; set; }
+
         public MyContext(DbContextOptions<MyContext> options)
             : base(options)
         {
@@ -29,7 +32,7 @@ namespace WDPR_MVC.Data
 
             //Many-To-Many voor Report
             builder.Entity<Report>()
-                .HasKey(t => new { t.MeldingId, t.AuteurReportId});
+                .HasKey(t => new { t.MeldingId, t.AuteurReportId });
 
             builder.Entity<Report>()
                 .HasOne(pt => pt.Melding)
@@ -40,6 +43,6 @@ namespace WDPR_MVC.Data
                 .HasOne(pt => pt.AuteurReport)
                 .WithMany(t => t.Reports)
                 .HasForeignKey(pt => pt.AuteurReportId);
-    }
+        }
     }
 }

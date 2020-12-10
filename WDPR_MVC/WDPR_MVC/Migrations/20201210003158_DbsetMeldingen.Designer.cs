@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WDPR_MVC.Data;
 
 namespace WDPR_MVC.Migrations
 {
     [DbContext(typeof(MyContext))]
-    partial class MyContextModelSnapshot : ModelSnapshot
+    [Migration("20201210003158_DbsetMeldingen")]
+    partial class DbsetMeldingen
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -228,7 +230,7 @@ namespace WDPR_MVC.Migrations
                     b.HasIndex("Naam")
                         .IsUnique();
 
-                    b.ToTable("Categorieen");
+                    b.ToTable("Categorie");
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.Comment", b =>
