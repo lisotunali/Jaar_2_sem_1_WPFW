@@ -58,7 +58,7 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account.Manage
             Input = new InputModel
             {
                 PhoneNumber = phoneNumber,
-                Adres = _mycontext.Adres.Find(user.AdresId)
+                Adres = user.Adres
             };
         }
 
