@@ -1,0 +1,68 @@
+@model IEnumerable<Melding>
+
+@{
+    ViewData["Title"] = "Meldingen";
+}
+
+<h1 class="display-4 mb-3 text-center">Meldingen!</h1>
+
+@* TODO: Er moet gesorteerd kunnen worden op aantal views, aantal likes, en datum.
+    De gebruiker kan eendatum rangeaangeven waarbinnen de meldingen gepost moeten zijn.
+    De gebruiker kan er ook voor kiezen te filteren op meldingen waarop de gebruiker heeft geliket.
+    De resultaten moeten per 10 op een pagina te zien zijn, met een knop kan dan de volgende 10 worden bekeken
+    Standaard worden alle open meldingen weergegeven, maar de gebruiker kan er ook voor kiezen gesloten meldingen ook
+    zichtbaar te maken.*@
+<div class="row mb-3">
+    <div class="col-lg-12">
+        <input type="search" class="form-control mb-3" placeholder="Search... moet ook hier ergens komen"
+            aria-label="Search for..." autocomplete="off" spellcheck="false" dir="auto">
+    </div>
+    <div class="col-lg-12">
+        <div class="text-center p-5 bg-info text-light rounded">
+            <h3 class="bg-info">reserved for filters</h3>
+        </div>
+    </div>
+    <div class="col-lg">
+        <a asp-action="Create">Create New</a>
+    </div>
+</div>
+
+@* TODO: Maak gebruik van articles voor accessibitibtliyiylyiil *@
+<div class="row">
+    @foreach (var melding in Model)
+    {
+        <div class="col-sm-6 col-lg-4 mb-4 card-group">
+            <div class="card">
+                <div class="card-body">
+                    @* Dit moet natuurlijk h1 zijn *@
+                    <h5 class="card-title">@melding.Titel</h5>
+                    <p class="card-text">@(melding.Beschrijving.Substring(0, Math.Min(melding.Beschrijving.Length, 150)))...</p>
+                    <a asp-action="Details" asp-route-id="@melding.Id" class="stretched-link">Bekijk melding</a>
+                </div>
+                <div class="d-flex card-footer justify-content-between align-items-center">
+                    <div>
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-heart" fill="currentColor"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <title>Heart likes</title>
+                            <path fill-rule="evenodd"
+                                d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
+                        </svg>
+                        <span>@melding.AantalLikes</span>
+                    </div>
+                    @* <small class="text-muted ">Brian op 25-11-2020</small> *@
+                    <small class="text-muted ">@($"{melding.Auteur.UserName} op {melding.DatumAangemaakt}")</small>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@* <nav aria-label="Melding navigatie">
+    <ul class="pagination">
+        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+        <li class="page-item"><a class="page-link" href="#">1</a></li>
+        <li class="page-item"><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+    </ul>
+</nav> *@
