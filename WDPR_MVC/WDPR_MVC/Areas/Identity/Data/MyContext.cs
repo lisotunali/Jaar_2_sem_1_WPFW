@@ -12,6 +12,7 @@ namespace WDPR_MVC.Data
 {
     public class MyContext : IdentityDbContext<ApplicationUser>
     {
+        public DbSet<Adres> Adres { get; set; }
         public MyContext(DbContextOptions<MyContext> options)
             : base(options)
         {

@@ -12,5 +12,10 @@ namespace WDPR_MVC.Areas.Identity.Data
     {
         public List<Melding> Meldingen { get; set; } = new List<Melding>();
         public List<Report> Reports { get; set; } = new List<Report>();
+        
+        [PersonalData]
+        public Adres Adres { get; set; }
+        public int AdresId { get; set; }
+
     }
 }
