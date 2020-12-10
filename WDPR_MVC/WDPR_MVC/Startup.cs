@@ -32,7 +32,7 @@ namespace WDPR_MVC
 
             services.AddDbContext<MyContext>(options =>
                     options.UseMySql(
-                        Configuration.GetConnectionString("MyContextConnection")));
+                        Configuration.GetConnectionString("MyContextConnection")).UseLazyLoadingProxies());
 
             services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<MyContext>();

@@ -15,6 +15,7 @@ namespace WDPR_MVC.Data
         public DbSet<Melding> Meldingen { get; set; }
         public DbSet<Categorie> Categorieen { get; set; }
 
+        public DbSet<Adres> Adres { get; set; }
         public MyContext(DbContextOptions<MyContext> options)
             : base(options)
         {

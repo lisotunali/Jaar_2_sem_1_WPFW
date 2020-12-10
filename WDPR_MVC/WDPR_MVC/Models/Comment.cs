@@ -12,11 +12,11 @@ namespace WDPR_MVC.Models
         public int Id { get; set; }
 
         public int MeldingId { get; set; }
-        public Melding Melding { get; set; }
+        public virtual Melding Melding { get; set; }
 
         [Required]
         public string AuteurCommentId { get; set; }
-        public ApplicationUser AuteurComment { get; set; }
+        public virtual ApplicationUser AuteurComment { get; set; }
 
         [Required]
         public string Inhoud { get; set; }
