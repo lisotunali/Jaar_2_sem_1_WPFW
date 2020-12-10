@@ -13,7 +13,7 @@ namespace WDPR_MVC.Models
 
         [Required]
         public string AuteurId { get; set; }
-        public ApplicationUser Auteur { get; set; }
+        public virtual ApplicationUser Auteur { get; set; }
 
         [Required]
         public string Titel { get; set; }
@@ -27,8 +27,8 @@ namespace WDPR_MVC.Models
         public bool IsAnonymous { get; set; }
 
         public int CategorieId { get; set; }
-        public Categorie Categorie { get; set; }
-        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
-        public ICollection<Report> Reports { get; set; } = new List<Report>();
+        public virtual Categorie Categorie { get; set; }
+        public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        public virtual ICollection<Report> Reports { get; set; } = new List<Report>();
     }
 }
