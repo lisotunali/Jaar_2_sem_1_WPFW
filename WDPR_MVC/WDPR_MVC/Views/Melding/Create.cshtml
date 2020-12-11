@@ -1,0 +1,47 @@
+@model Melding
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1 class="display-4 text-center">Maak Melding</h1>
+
+<form asp-action="Create">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="Titel" class="control-label">Titel van de melding</label>
+        <input asp-for="Titel" class="form-control" />
+        <span asp-validation-for="Titel" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Beschrijving" class="control-label">Beschrijf uw melding</label>
+        <textarea asp-for="Beschrijving" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Beschrijving" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label for="CategorieId">Categorie</label>
+        <select class="form-control" asp-for="CategorieId" asp-items="@(new SelectList((IEnumerable<Categorie>)ViewBag.Categorieen, "Id", "Naam"))">
+            <option>Kies een Categorie</option>
+        </select>
+        <span asp-validation-for="CategorieId" class="text-danger"></span>
+    </div>
+    <div class="form-check mb-3">
+        <input asp-for="IsAnonymous" class="form-check-input">
+        <label class="form-check-label" asp-for="IsAnonymous">Is anonieme melding?</label>
+        <span asp-validation-for="IsAnonymous" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label for="uploadFoto">Upload foto (werkt nog niet)</label>
+        <input type="file" class="form-control-file" id="uploadFoto">
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Create" class="btn btn-primary" />
+    </div>
+</form>
+<div>
+    <a asp-action="Index">Terug naar overzicht</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

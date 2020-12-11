@@ -20,7 +20,6 @@ namespace WDPR_MVC.Models
 
         [Required]
         public string Beschrijving { get; set; }
-        public int AantalLikes { get; set; }
         public DateTime DatumAangemaakt { get; set; }
         public int KeerBekeken { get; set; }
         public bool IsClosed { get; set; }
@@ -30,5 +29,8 @@ namespace WDPR_MVC.Models
         public virtual Categorie Categorie { get; set; }
         public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
         public virtual ICollection<Report> Reports { get; set; } = new List<Report>();
+
+        // We moeten bijhouden wie er allemaal heeft geliked
+        public virtual ICollection<MeldingLike> Likes { get; set; } = new List<MeldingLike>();
     }
 }
