@@ -12,8 +12,10 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using WDPR_MVC.Areas.Identity.Data;
+using WDPR_MVC.Data;
 using WDPR_MVC.Models;
 
 namespace WDPR_MVC.Areas.Identity.Pages.Account
@@ -25,17 +27,20 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly MyContext _context;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            MyContext mycontext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _context = mycontext;
         }
 
         [BindProperty]
@@ -81,20 +86,30 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser 
-                { 
-                    UserName = Input.Email, 
-                    Email = Input.Email,
-                    Adres = new Adres 
-                    { 
+                // Check if adres already exists
+                var adres = await _context.Adres.FirstOrDefaultAsync(a =>
+                    a.Huisnummer == Input.Adres.Huisnummer &&
+                    a.Postcode == Input.Adres.Postcode &&
+                    a.Toevoeging == Input.Adres.Toevoeging
+                );
+
+                if (adres == null)
+                {
+                    adres = new Adres
+                    {
                         Straatnaam = Input.Adres.Straatnaam,
-                        Huisnummer = Input.Adres.Huisnummer, 
+                        Huisnummer = Input.Adres.Huisnummer,
                         Toevoeging = Input.Adres.Toevoeging,
                         Postcode = Input.Adres.Postcode
-                    }
+                    };
+                }
 
-
-            };
+                var user = new ApplicationUser
+                {
+                    UserName = Input.Email,
+                    Email = Input.Email,
+                    Adres = adres
+                };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
