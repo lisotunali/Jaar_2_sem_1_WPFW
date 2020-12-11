@@ -93,6 +93,34 @@ namespace WDPR_MVC.Controllers
             return RedirectToAction(nameof(Details), new { id = id });
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult<int>> AddLike(int id)
+        {
+            var melding = _context.Meldingen.Find(id);
+
+            if (melding == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _um.GetUserAsync(User);
+
+            // Check if logged in user already has already liked this melding.
+            // This is used to add or remove a like from a melding.
+            if (melding.Likes.Any(m => m.MeldingId == id && m.UserId == user.Id))
+            {
+                melding.Likes.Remove(melding.Likes.First(m => m.MeldingId == id && m.UserId == user.Id));
+            }
+            else
+            {
+                melding.Likes.Add(new MeldingLike { MeldingId = id, User = user });
+            }
+
+            await _context.SaveChangesAsync();
+            return melding.Likes.Count();
+        }
+
         private bool MeldingExists(int id)
         {
             return _context.Meldingen.Any(e => e.Id == id);

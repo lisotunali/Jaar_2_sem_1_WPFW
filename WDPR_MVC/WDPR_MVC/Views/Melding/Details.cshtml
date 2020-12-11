@@ -1,8 +1,13 @@
 @model Melding
 
+@using Microsoft.AspNetCore.Identity
+@using WDPR_MVC.Areas.Identity.Data
+
 @{
     ViewData["Title"] = $"Melding - {Model.Titel}";
 }
+
+@inject UserManager<ApplicationUser> UserManager
 
 <div class="row">
     <div class="col-lg-12 mb-3">
@@ -18,14 +23,16 @@
                         @* TODO: verander date format *@
                         @* <p class="text-muted">26 november 2020 22:52</p> *@
                     </div>
-                    <div class="likes ml-auto d-flex align-items-center">
+                    <div class="likes ml-auto d-flex align-items-center" id="like">
                         <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-heart mr-2"
                             fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <title>Heart likes</title>
                             <path fill-rule="evenodd"
                                 d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" />
                         </svg>
-                        <span>@Model.AantalLikes</span>
+                        <span id="likesAmount"
+                            @* Dit misschien verplaatsen naar een viewmodel *@
+                            class="@(Model.Likes.Any(m => m.UserId == UserManager.GetUserId(User)) ? "liked" : "")">@Model.Likes.Count()</span>
                     </div>
                 </div>
             </div>
@@ -78,3 +85,31 @@
         </form>
     </div>
 </div>
+
+@section scripts {
+<script>
+    const like = document.getElementById("like");
+    like.addEventListener("click", addLike);
+
+    async function addLike() {
+        const currentLikes = document.getElementById("likesAmount");
+
+        // Add +1/-1 right now for instant feedback to the user
+        currentLikes.innerHTML = Number(currentLikes.innerHTML) + ((currentLikes.classList.contains("liked")) ? -1 : 1);
+        currentLikes.classList.toggle("liked");
+
+        const response = await fetch("@(Url.Action("AddLike", "Melding"))", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': document.getElementsByName("__RequestVerificationToken")[0].value
+            },
+            body: "id=@Model.Id"
+        })
+        const likes = await response.json();
+
+        // Update again to the new amount that gets returned from the request
+        currentLikes.innerHTML = likes;
+    }
+</script>
+}

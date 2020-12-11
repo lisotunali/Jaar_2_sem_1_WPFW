@@ -14,8 +14,8 @@ namespace WDPR_MVC.Data
     {
         public DbSet<Melding> Meldingen { get; set; }
         public DbSet<Categorie> Categorieen { get; set; }
-
         public DbSet<Adres> Adres { get; set; }
+
         public MyContext(DbContextOptions<MyContext> options)
             : base(options)
         {
@@ -44,6 +44,10 @@ namespace WDPR_MVC.Data
                 .HasOne(pt => pt.AuteurReport)
                 .WithMany(t => t.Reports)
                 .HasForeignKey(pt => pt.AuteurReportId);
+
+            //Composite key
+            builder.Entity<MeldingLike>()
+                .HasKey(ml => new { ml.MeldingId, ml.UserId });
         }
     }
 }
