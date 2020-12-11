@@ -27,6 +27,16 @@ namespace WDPR_MVC.Controllers
             return View();
         }
 
+        public IActionResult MeldingView()
+        {
+            return View();
+        }
+
+        public IActionResult MeldingCreate()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();

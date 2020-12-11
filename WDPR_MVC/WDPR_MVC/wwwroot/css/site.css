@@ -101,6 +101,19 @@ p {
   color: Var(--important3);
 }
 
+h4 {
+    font-size: 24px;
+    color: Var(--important2);
+    padding: 10px 0px 10px 0px;
+    border-top: solid 1px var(--important2);
+    border-bottom: solid 1px var(--important2);
+}
+
+.home-content {
+    margin-top: 20px;
+}
+
+
 a {
   color: Var(--important2);
 }
@@ -110,4 +123,26 @@ a {
 }
 .row {
     max-width: 100px;
+}
+.card-title {
+  color: Var(--important1);
+}
+
+.card-text {
+  color: Var(--dark);
+}
+
+.userImage img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.userInfo p {
+  margin-bottom: 2px;
+}
+
+.metadataUser .likes span {
+  font-size: 1.5em;
+  color: Var(--important3);
 }
