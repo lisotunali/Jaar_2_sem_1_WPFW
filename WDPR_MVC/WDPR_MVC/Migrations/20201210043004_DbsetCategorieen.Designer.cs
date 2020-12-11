@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WDPR_MVC.Data;
 
 namespace WDPR_MVC.Migrations
 {
     [DbContext(typeof(MyContext))]
-    partial class MyContextModelSnapshot : ModelSnapshot
+    [Migration("20201210043004_DbsetCategorieen")]
+    partial class DbsetCategorieen
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -157,9 +159,6 @@ namespace WDPR_MVC.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<int>("AdresId")
-                        .HasColumnType("int");
-
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
@@ -206,8 +205,6 @@ namespace WDPR_MVC.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AdresId");
-
                     b.HasIndex("NormalizedEmail")
                         .HasName("EmailIndex");
 
@@ -216,31 +213,6 @@ namespace WDPR_MVC.Migrations
                         .HasName("UserNameIndex");
 
                     b.ToTable("AspNetUsers");
-                });
-
-            modelBuilder.Entity("WDPR_MVC.Models.Adres", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("Huisnummer")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Postcode")
-                        .IsRequired()
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<string>("Straatnaam")
-                        .IsRequired()
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<string>("Toevoeging")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Adres");
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.Categorie", b =>
@@ -299,6 +271,9 @@ namespace WDPR_MVC.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<int>("AantalLikes")
+                        .HasColumnType("int");
+
                     b.Property<string>("AuteurId")
                         .IsRequired()
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
@@ -333,21 +308,6 @@ namespace WDPR_MVC.Migrations
                     b.HasIndex("CategorieId");
 
                     b.ToTable("Meldingen");
-                });
-
-            modelBuilder.Entity("WDPR_MVC.Models.MeldingLike", b =>
-                {
-                    b.Property<int>("MeldingId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
-
-                    b.HasKey("MeldingId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("MeldingLike");
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.Report", b =>
@@ -416,15 +376,6 @@ namespace WDPR_MVC.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("WDPR_MVC.Areas.Identity.Data.ApplicationUser", b =>
-                {
-                    b.HasOne("WDPR_MVC.Models.Adres", "Adres")
-                        .WithMany()
-                        .HasForeignKey("AdresId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("WDPR_MVC.Models.Comment", b =>
                 {
                     b.HasOne("WDPR_MVC.Areas.Identity.Data.ApplicationUser", "AuteurComment")
@@ -451,21 +402,6 @@ namespace WDPR_MVC.Migrations
                     b.HasOne("WDPR_MVC.Models.Categorie", "Categorie")
                         .WithMany("Meldingen")
                         .HasForeignKey("CategorieId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("WDPR_MVC.Models.MeldingLike", b =>
-                {
-                    b.HasOne("WDPR_MVC.Models.Melding", "Melding")
-                        .WithMany("Likes")
-                        .HasForeignKey("MeldingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WDPR_MVC.Areas.Identity.Data.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

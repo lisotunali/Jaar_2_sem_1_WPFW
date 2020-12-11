@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WDPR_MVC.Data;
 
 namespace WDPR_MVC.Migrations
 {
     [DbContext(typeof(MyContext))]
-    partial class MyContextModelSnapshot : ModelSnapshot
+    [Migration("20201210150823_adresasdbset")]
+    partial class adresasdbset
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -258,7 +260,7 @@ namespace WDPR_MVC.Migrations
                     b.HasIndex("Naam")
                         .IsUnique();
 
-                    b.ToTable("Categorieen");
+                    b.ToTable("Categorie");
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.Comment", b =>
@@ -299,6 +301,9 @@ namespace WDPR_MVC.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<int>("AantalLikes")
+                        .HasColumnType("int");
+
                     b.Property<string>("AuteurId")
                         .IsRequired()
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
@@ -332,22 +337,7 @@ namespace WDPR_MVC.Migrations
 
                     b.HasIndex("CategorieId");
 
-                    b.ToTable("Meldingen");
-                });
-
-            modelBuilder.Entity("WDPR_MVC.Models.MeldingLike", b =>
-                {
-                    b.Property<int>("MeldingId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
-
-                    b.HasKey("MeldingId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("MeldingLike");
+                    b.ToTable("Melding");
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.Report", b =>
@@ -451,21 +441,6 @@ namespace WDPR_MVC.Migrations
                     b.HasOne("WDPR_MVC.Models.Categorie", "Categorie")
                         .WithMany("Meldingen")
                         .HasForeignKey("CategorieId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("WDPR_MVC.Models.MeldingLike", b =>
-                {
-                    b.HasOne("WDPR_MVC.Models.Melding", "Melding")
-                        .WithMany("Likes")
-                        .HasForeignKey("MeldingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WDPR_MVC.Areas.Identity.Data.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

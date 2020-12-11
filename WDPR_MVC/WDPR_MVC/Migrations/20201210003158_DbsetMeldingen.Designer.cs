@@ -9,8 +9,8 @@ using WDPR_MVC.Data;
 namespace WDPR_MVC.Migrations
 {
     [DbContext(typeof(MyContext))]
-    [Migration("20201209132719_FirstMigration")]
-    partial class FirstMigration
+    [Migration("20201210003158_DbsetMeldingen")]
+    partial class DbsetMeldingen
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -215,6 +215,116 @@ namespace WDPR_MVC.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("WDPR_MVC.Models.Categorie", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Naam")
+                        .IsRequired()
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Naam")
+                        .IsUnique();
+
+                    b.ToTable("Categorie");
+                });
+
+            modelBuilder.Entity("WDPR_MVC.Models.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("AantalLikes")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AuteurCommentId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
+                    b.Property<DateTime>("DatumAangemaakt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Inhoud")
+                        .IsRequired()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<int>("MeldingId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuteurCommentId");
+
+                    b.HasIndex("MeldingId");
+
+                    b.ToTable("Comment");
+                });
+
+            modelBuilder.Entity("WDPR_MVC.Models.Melding", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("AantalLikes")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AuteurId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Beschrijving")
+                        .IsRequired()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<int>("CategorieId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DatumAangemaakt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsAnonymous")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("KeerBekeken")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Titel")
+                        .IsRequired()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuteurId");
+
+                    b.HasIndex("CategorieId");
+
+                    b.ToTable("Meldingen");
+                });
+
+            modelBuilder.Entity("WDPR_MVC.Models.Report", b =>
+                {
+                    b.Property<int>("MeldingId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AuteurReportId")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
+                    b.HasKey("MeldingId", "AuteurReportId");
+
+                    b.HasIndex("AuteurReportId");
+
+                    b.ToTable("Report");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -262,6 +372,51 @@ namespace WDPR_MVC.Migrations
                     b.HasOne("WDPR_MVC.Areas.Identity.Data.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WDPR_MVC.Models.Comment", b =>
+                {
+                    b.HasOne("WDPR_MVC.Areas.Identity.Data.ApplicationUser", "AuteurComment")
+                        .WithMany()
+                        .HasForeignKey("AuteurCommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WDPR_MVC.Models.Melding", "Melding")
+                        .WithMany("Comments")
+                        .HasForeignKey("MeldingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WDPR_MVC.Models.Melding", b =>
+                {
+                    b.HasOne("WDPR_MVC.Areas.Identity.Data.ApplicationUser", "Auteur")
+                        .WithMany("Meldingen")
+                        .HasForeignKey("AuteurId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WDPR_MVC.Models.Categorie", "Categorie")
+                        .WithMany("Meldingen")
+                        .HasForeignKey("CategorieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WDPR_MVC.Models.Report", b =>
+                {
+                    b.HasOne("WDPR_MVC.Areas.Identity.Data.ApplicationUser", "AuteurReport")
+                        .WithMany("Reports")
+                        .HasForeignKey("AuteurReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WDPR_MVC.Models.Melding", "Melding")
+                        .WithMany("Reports")
+                        .HasForeignKey("MeldingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
