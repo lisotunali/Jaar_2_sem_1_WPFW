@@ -13,6 +13,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using WDPR_MVC.Areas.Identity.Data;
 using WDPR_MVC.Data;
+using WDPR_MVC.Services;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace WDPR_MVC
 {
@@ -45,6 +47,9 @@ namespace WDPR_MVC
                 };
             })
                 .AddEntityFrameworkStores<MyContext>();
+
+            services.AddTransient<IEmailSender, EmailSender>();
+            services.Configure<EmailSettings>(Configuration.GetSection("SuperSecretMailInfo"));
 
             services.AddRazorPages();
         }
