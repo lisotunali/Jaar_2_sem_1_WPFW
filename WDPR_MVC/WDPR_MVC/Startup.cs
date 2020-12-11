@@ -34,7 +34,16 @@ namespace WDPR_MVC
                     options.UseMySql(
                         Configuration.GetConnectionString("MyContextConnection")).UseLazyLoadingProxies());
 
-            services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<ApplicationUser>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = true;
+                options.Lockout = new Microsoft.AspNetCore.Identity.LockoutOptions()
+                {
+                    AllowedForNewUsers = true,
+                    DefaultLockoutTimeSpan = TimeSpan.FromSeconds(10),
+                    MaxFailedAccessAttempts = 3
+                };
+            })
                 .AddEntityFrameworkStores<MyContext>();
 
             services.AddRazorPages();
