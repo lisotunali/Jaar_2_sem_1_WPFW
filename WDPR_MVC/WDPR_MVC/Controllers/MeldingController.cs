@@ -27,7 +27,7 @@ namespace WDPR_MVC.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Meldingen.Include(m => m.Auteur).ToListAsync());
+            return View(await _context.Meldingen.ToListAsync());
         }
 
         // GET: Students/Create
@@ -64,7 +64,7 @@ namespace WDPR_MVC.Controllers
                 return NotFound();
             }
 
-            var melding = await _context.Meldingen.Include(m => m.Auteur).Include(m => m.Comments).FirstOrDefaultAsync(m => m.Id == id);
+            var melding = await _context.Meldingen.FirstOrDefaultAsync(m => m.Id == id);
 
             if (melding == null)
             {
