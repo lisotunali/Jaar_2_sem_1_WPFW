@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using WDPR_MVC.Areas.Identity.Data;
+using WDPR_MVC.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace WDPR_MVC.Areas.Identity.Pages.Account
 {
@@ -21,14 +23,17 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly MyContext _context;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, 
+        public LoginModel(SignInManager<ApplicationUser> signInManager,
             ILogger<LoginModel> logger,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            MyContext mycontext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _context = mycontext;
         }
 
         [BindProperty]
@@ -80,7 +85,7 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
@@ -97,7 +102,15 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == Input.Email);
+                    var errorMessage = "Invalid login attempt.";
+
+                    if (user != null && user.AccessFailedCount >= 3)
+                    {
+                        errorMessage += " Bent u uw wachtwoord vergeten?";
+                    }
+
+                    ModelState.AddModelError(string.Empty, errorMessage);
                     return Page();
                 }
             }
