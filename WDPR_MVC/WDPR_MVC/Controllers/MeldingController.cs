@@ -104,20 +104,35 @@ namespace WDPR_MVC.Controllers
                 return NotFound();
             }
 
-            var user = await _um.GetUserAsync(User);
-
-            // Check if logged in user already has already liked this melding.
-            // This is used to add or remove a like from a melding.
-            if (melding.Likes.Any(m => m.MeldingId == id && m.UserId == user.Id))
+            try
             {
-                melding.Likes.Remove(melding.Likes.First(m => m.MeldingId == id && m.UserId == user.Id));
+                var user = await _um.GetUserAsync(User);
+
+                // Check if logged in user already has already liked this melding.
+                // This is used to add or remove a like from a melding.
+                if (melding.Likes.Any(m => m.MeldingId == id && m.UserId == user.Id))
+                {
+                    melding.Likes.Remove(melding.Likes.First(m => m.MeldingId == id && m.UserId == user.Id));
+                }
+                else
+                {
+                    melding.Likes.Add(new MeldingLike { MeldingId = id, User = user });
+                }
+
+                await _context.SaveChangesAsync();
             }
-            else
+            catch (DbUpdateConcurrencyException)
             {
-                melding.Likes.Add(new MeldingLike { MeldingId = id, User = user });
+                if (!MeldingExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
             }
 
-            await _context.SaveChangesAsync();
             return melding.Likes.Count();
         }
 
