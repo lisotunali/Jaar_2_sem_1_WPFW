@@ -1,15 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WDPR_MVC.Areas.Identity.Data;
 using WDPR_MVC.Data;
 using WDPR_MVC.Models;
+using WDPR_MVC.ViewModels;
 
 namespace WDPR_MVC.Controllers
 {
@@ -25,9 +24,12 @@ namespace WDPR_MVC.Controllers
             _um = um;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page)
         {
-            return View(await _context.Meldingen.ToListAsync());
+			// Set page to 0 if page is a negative number
+            if (page < 0) page = 0;
+
+            return View(await PaginatedList<Melding>.CreateAsync(_context.Meldingen, page, 6));
         }
 
         // GET: Students/Create

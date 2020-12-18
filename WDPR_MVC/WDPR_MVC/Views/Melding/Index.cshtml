@@ -1,4 +1,4 @@
-@model IEnumerable<Melding>
+@model PaginatedList<Melding>
 
 @{
     ViewData["Title"] = "Meldingen";
@@ -59,12 +59,36 @@
     }
 </div>
 
-@* <nav aria-label="Melding navigatie">
-    <ul class="pagination">
-        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-        <li class="page-item"><a class="page-link" href="#">1</a></li>
-        <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+@* TODO: Move this to a partialview *@
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<nav aria-label="Melding navigatie">
+    <ul class="pagination justify-content-center">
+        <li class="page-item @prevDisabled">
+			<a 
+				class="page-link"
+				asp-action="Index"
+				asp-route-page="@(Model.PageIndex - 1)"
+				tabindex="@(Model.HasPreviousPage ? 0 : -1)"
+				aria-disabled="@((!Model.HasPreviousPage).ToString())"
+			>
+				Previous
+			</a>
+		</li>
+        <li class="page-item @nextDisabled">
+			<a 
+				class="page-link"
+				asp-action="Index"
+				asp-route-page="@(Model.PageIndex + 1)"
+				tabindex="@(Model.HasNextPage ? 0 : -1)"
+				aria-disabled="@((!Model.HasNextPage).ToString())"
+			>
+				Next
+			</a>
+		</li>
     </ul>
-</nav> *@
+</nav>
