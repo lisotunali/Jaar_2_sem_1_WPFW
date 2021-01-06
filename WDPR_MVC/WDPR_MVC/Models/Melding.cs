@@ -16,9 +16,11 @@ namespace WDPR_MVC.Models
         public virtual ApplicationUser Auteur { get; set; }
 
         [Required]
+        [MinLength(3)]
         public string Titel { get; set; }
 
         [Required]
+        [MinLength(10)]
         public string Beschrijving { get; set; }
         public DateTime DatumAangemaakt { get; set; }
         public int KeerBekeken { get; set; }
