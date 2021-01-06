@@ -6,12 +6,6 @@
 
 <h1 class="display-4 mb-3 text-center">Meldingen!</h1>
 
-@* TODO: Er moet gesorteerd kunnen worden op aantal views, aantal likes, en datum.
-    De gebruiker kan eendatum rangeaangeven waarbinnen de meldingen gepost moeten zijn.
-    De gebruiker kan er ook voor kiezen te filteren op meldingen waarop de gebruiker heeft geliket.
-    De resultaten moeten per 10 op een pagina te zien zijn, met een knop kan dan de volgende 10 worden bekeken
-    Standaard worden alle open meldingen weergegeven, maar de gebruiker kan er ook voor kiezen gesloten meldingen ook
-    zichtbaar te maken.*@
 <div class="row mb-3">
     <div class="col-lg-12">
         <input type="search" class="form-control mb-3" placeholder="Search... moet ook hier ergens komen"
@@ -32,13 +26,14 @@
     @foreach (var melding in Model)
     {
         <div class="col-sm-6 col-lg-4 mb-4 card-group">
-            <div class="card">
+										@*temp om closed te testen*@
+            <div class="card" style="@((melding.IsClosed) ? "border-color: red" : "")">
                 <div class="card-body">
                     @* Dit moet natuurlijk h1 zijn *@
                     <h5 class="card-title">@melding.Titel</h5>
                     <p class="card-text">@(melding.Beschrijving.Substring(0, Math.Min(melding.Beschrijving.Length, 150)))...</p>
-                    <p>Categorie moet ook hier ergens komen: </p>
-                    <p>@melding.Categorie.Naam</p>
+                    <p>Categorie: @melding.Categorie.Naam</p>
+                    <p>Aantal views @melding.KeerBekeken</p>
                     <a asp-action="Details" asp-route-id="@melding.Id" class="stretched-link">Bekijk melding</a>
                 </div>
                 <div class="d-flex card-footer justify-content-between align-items-center">

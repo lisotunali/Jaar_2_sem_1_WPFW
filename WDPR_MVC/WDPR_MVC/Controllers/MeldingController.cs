@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -24,12 +25,109 @@ namespace WDPR_MVC.Controllers
             _um = um;
         }
 
-        public async Task<IActionResult> Index(int page)
+        public async Task<IActionResult> Index(
+            int page,
+            string search,
+            string sort,
+            string order,
+            bool closed,
+            bool likedOnly,
+            DateTime startDate,
+            DateTime endDate)
         {
-			// Set page to 0 if page is a negative number
+            // Set page to 0 if page is a negative number
             if (page < 0) page = 0;
 
-            return View(await PaginatedList<Melding>.CreateAsync(_context.Meldingen, page, 6));
+            // De meldingen. Natuurlijk stuur je nooit anonymous meldingen mee.
+            var meldingen = _context.Meldingen.Where(m => m.IsAnonymous == false);
+
+            // Zoek specifieke melding op titel of beschrijving
+            meldingen = Search(meldingen, search);
+
+            // Filter meldingen
+            meldingen = await Filter(meldingen, closed, likedOnly, startDate, endDate);
+
+            // Sorteer meldingen
+            meldingen = Sort(meldingen, sort, order);
+
+            return View(await PaginatedList<Melding>.CreateAsync(meldingen, page, 10));
+        }
+
+        IQueryable<Melding> Search(IQueryable<Melding> meldingen, string search)
+        {
+            Console.WriteLine(search);
+            if (search == null)
+            {
+                return _context.Meldingen;
+            }
+
+            return meldingen
+                .Where(m => m.Beschrijving.Contains(search) || m.Titel.Contains(search));
+        }
+
+
+        // Er moet gesorteerd kunnen worden op aantal views, aantal likes, en
+        // datum.
+        IQueryable<Melding> Sort(IQueryable<Melding> list, string sort, string sortOrder)
+        {
+            return sort?.ToLower() switch
+            {
+                "views" => SortThisPls(list, m => m.KeerBekeken, sortOrder),
+                "likes" => SortThisPls(list, m => m.Likes.Count(), sortOrder),
+                "date" => SortThisPls(list, m => m.DatumAangemaakt, sortOrder),
+                _ => SortThisPls(list, m => m.Id, sortOrder)
+
+            };
+        }
+
+        // Generic method to sort IQueryable things easier.
+        // Defaults to DESC if sortOrder is not ASC.
+        IQueryable<T> SortThisPls<T, V>(
+            IQueryable<T> list,
+            Expression<Func<T, V>> selector,
+            String sortOrder)
+        {
+            if (sortOrder?.ToLower() == "asc")
+            {
+                return list.OrderBy(selector);
+            }
+
+            return list.OrderByDescending(selector);
+        }
+
+        async Task<IQueryable<Melding>> Filter(
+            IQueryable<Melding> meldingen,
+            bool closed,
+            bool likedOnly,
+            DateTime startDate,
+            DateTime endDate)
+        {
+            // Standaard worden alle open meldingen weergegeven, maar de
+            // gebruiker kan er ook voor kiezen gesloten meldingen ook
+            // zichtbaar te maken.
+            if (!closed)
+            {
+                meldingen = meldingen.Where(m => !m.IsClosed);
+            }
+
+            // De gebruiker kan er ook voor kiezen te filteren op meldingen
+            // waarop de gebruiker heeft geliket.
+            if (likedOnly)
+            {
+                var user = await _um.GetUserAsync(User);
+                meldingen = meldingen.Where(m => m.Likes.Any(m => m.UserId == user.Id));
+            }
+
+            // De gebruiker kan een datum rangeaangeven waarbinnen de meldingen
+            // gepost moeten zijn.
+            if (startDate != DateTime.MinValue && endDate != DateTime.MinValue)
+            {
+                meldingen = meldingen
+                    .Where(m => m.DatumAangemaakt >= startDate)
+                    .Where(m => m.DatumAangemaakt <= endDate);
+            }
+
+            return meldingen;
         }
 
         // GET: Students/Create
@@ -59,6 +157,7 @@ namespace WDPR_MVC.Controllers
             return View(melding);
         }
 
+        // TODO: Add check if melding is anonymous
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
