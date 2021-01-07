@@ -86,23 +86,13 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                // Check if adres already exists
-                var adres = await _context.Adres.FirstOrDefaultAsync(a =>
-                    a.Huisnummer == Input.Adres.Huisnummer &&
-                    a.Postcode == Input.Adres.Postcode &&
-                    a.Toevoeging == Input.Adres.Toevoeging
-                );
-
-                if (adres == null)
+                var adres = new Adres
                 {
-                    adres = new Adres
-                    {
-                        Straatnaam = Input.Adres.Straatnaam,
-                        Huisnummer = Input.Adres.Huisnummer,
-                        Toevoeging = Input.Adres.Toevoeging,
-                        Postcode = Input.Adres.Postcode
-                    };
-                }
+                    Straatnaam = Input.Adres.Straatnaam,
+                    Huisnummer = Input.Adres.Huisnummer,
+                    Toevoeging = Input.Adres.Toevoeging,
+                    Postcode = Input.Adres.Postcode
+                };
 
                 var user = new ApplicationUser
                 {
