@@ -55,7 +55,6 @@ namespace WDPR_MVC.Controllers
 
         IQueryable<Melding> Search(IQueryable<Melding> meldingen, string search)
         {
-            Console.WriteLine(search);
             if (search == null)
             {
                 return _context.Meldingen;
