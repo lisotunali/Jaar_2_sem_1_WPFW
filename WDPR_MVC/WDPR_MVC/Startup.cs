@@ -15,6 +15,7 @@ using WDPR_MVC.Areas.Identity.Data;
 using WDPR_MVC.Data;
 using WDPR_MVC.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Identity;
 
 namespace WDPR_MVC
 {
@@ -47,6 +48,12 @@ namespace WDPR_MVC
                 };
             })
                 .AddEntityFrameworkStores<MyContext>();
+
+            // Set expiry time for email reset token
+            services.Configure<DataProtectionTokenProviderOptions>(options =>
+            {
+                options.TokenLifespan = TimeSpan.FromDays(2);
+            });
 
             services.AddTransient<IEmailSender, EmailSender>();
             services.Configure<AuthMessageSenderOptions>(Configuration.GetSection("SuperSecretMailInfo"));

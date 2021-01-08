@@ -12,6 +12,7 @@
     <header>
         <!--navbar, toggle knop krijg je alleen op kleine schermen zoals telefoons te zien.-->
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-custom border-bottom box-shadow mb-3">
+            <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
             <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Buurtje</a> @*TODO: Hier nog een logo maken*@
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
@@ -37,7 +38,7 @@
         </nav>
     </header>
     <div class="container">
-        <main role="main" class="pb-3">
+        <main role="main" class="pb-3" id="content">
             @RenderBody()
         </main>
     </div>
