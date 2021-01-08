@@ -11,19 +11,56 @@
 
 <h1 class="display-4 mb-3 text-center">Meldingen!</h1>
 
-<div class="row mb-3">
-    <div class="col-lg-12">
-        <input type="search" class="form-control mb-3" placeholder="Search... moet ook hier ergens komen"
-            aria-label="Search for..." autocomplete="off" spellcheck="false" dir="auto">
-    </div>
-    <div class="col-lg-12">
-        <div class="text-center p-5 bg-info text-light rounded">
-            <h3 class="bg-info">reserved for filters</h3>
-        </div>
-    </div>
-    <div class="col-lg">
-        <a asp-action="Create">Create New</a>
-    </div>
+<a class="btn btn-primary mb-3" role="button" asp-action="Create">Maak een nieuwe melding</a>
+<button class="btn btn-primary mb-3" type="button" data-toggle="collapse" data-target="#advancedSearch" aria-expanded="false" aria-controls="advancedSearch">
+	Geadvanceerde search
+</button>
+
+<div class="collapse" id="advancedSearch">
+	<form method="get">
+		<div class="form-group">
+			<label for="Search" class="control-label">Zoek</label>
+			<input type="search" name="search" id="Search" class="form-control" value="@Context.Request.Query["Search"]" />
+		</div>
+		<div class="form-group">
+			<label for="sorteerOp">Sorteer op</label>
+			<select class="form-control" id="sorteerOp" name="sort">
+				<option ></option>
+				<!option value="views" @(Context.Request.Query["sort"] == "views" ? "selected" : "")>Weergave</!option>
+				<!option value="likes" @(Context.Request.Query["sort"] == "likes" ? "selected" : "")>Likes</!option>
+				<!option value="date" @(Context.Request.Query["sort"] == "date" ? "selected" : "")>Datum</!option>
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="volgorde">Volgorde</label>
+			<select class="form-control" id="volgorde" name="order">
+				<option selected></option>
+				<!option value="desc" @(Context.Request.Query["order"] == "desc" ? "selected" : "")>Aflopend</!option>
+				<!option value="asc" @(Context.Request.Query["order"] == "asc" ? "selected" : "")>Oplopend</!option>
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="startDate" class="control-label">Begin datum</label>
+			<input type="date" name="startDate" id="startDate" class="form-control" value="@Context.Request.Query["startDate"]" />
+		</div>
+		<div class="form-group">
+			<label for="endDate" class="control-label">Eind datum</label>
+			<input type="date" name="endDate" id="endDate" class="form-control" value="@Context.Request.Query["endDate"]" />
+		</div>
+		<div class="form-check">
+			<input type="checkbox" class="form-check-input" id="likedOnly" name="likedOnly" value="true"
+			@((Context.Request.Query["likedOnly"] == "true") ? "checked" : "")>
+			<label class="form-check-label ml-2" for="likedOnly">Alleen door mij geliket</label>
+		</div>
+		<div class="form-check">
+			<input type="checkbox" class="form-check-input" id="closed" name="closed" value="true"
+			@((Context.Request.Query["closed"] == "true") ? "checked" : "")>
+			<label class="form-check-label ml-2" for="closed" >Toon gesloten meldingen</label>
+		</div>
+		<div class="form-group mt-2">
+			<input type="submit" value="Search" class="btn btn-primary" />
+		</div>
+	</form>
 </div>
 
 <div class="row">
@@ -92,9 +129,16 @@
 			<a 
 				class="page-link"
 				asp-action="Index"
-				asp-route-page="@(Model.PageIndex - 1)"
 				tabindex="@(Model.HasPreviousPage ? 0 : -1)"
 				aria-disabled="@((!Model.HasPreviousPage).ToString())"
+				asp-route-page="@(Model.PageIndex - 1)"
+				asp-route-search="@Context.Request.Query["search"]"
+				asp-route-sort="@Context.Request.Query["sort"]"
+				asp-route-order="@Context.Request.Query["order"]"
+				asp-route-closed="@Context.Request.Query["closed"]"
+				asp-route-likedOnly="@Context.Request.Query["likedOnly"]"
+				asp-route-startDate="@Context.Request.Query["startDate"]"
+				asp-route-endDate="@Context.Request.Query["endDate"]"
 			>
 				Previous
 			</a>
@@ -103,9 +147,16 @@
 			<a 
 				class="page-link"
 				asp-action="Index"
-				asp-route-page="@(Model.PageIndex + 1)"
 				tabindex="@(Model.HasNextPage ? 0 : -1)"
 				aria-disabled="@((!Model.HasNextPage).ToString())"
+				asp-route-page="@(Model.PageIndex + 1)"
+				asp-route-search="@Context.Request.Query["search"]"
+				asp-route-sort="@Context.Request.Query["sort"]"
+				asp-route-order="@Context.Request.Query["order"]"
+				asp-route-closed="@Context.Request.Query["closed"]"
+				asp-route-likedOnly="@Context.Request.Query["likedOnly"]"
+				asp-route-startDate="@Context.Request.Query["startDate"]"
+				asp-route-endDate="@Context.Request.Query["endDate"]"
 			>
 				Next
 			</a>
