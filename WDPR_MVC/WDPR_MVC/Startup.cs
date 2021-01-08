@@ -49,7 +49,7 @@ namespace WDPR_MVC
                 .AddEntityFrameworkStores<MyContext>();
 
             services.AddTransient<IEmailSender, EmailSender>();
-            services.Configure<EmailSettings>(Configuration.GetSection("SuperSecretMailInfo"));
+            services.Configure<AuthMessageSenderOptions>(Configuration.GetSection("SuperSecretMailInfo"));
 
             services.AddRazorPages();
         }
