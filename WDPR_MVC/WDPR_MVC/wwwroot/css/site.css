@@ -145,3 +145,6 @@ a {
 	fill: Var(--important3);
 }
 
+.meldingClosed {
+	border-color: red
+}

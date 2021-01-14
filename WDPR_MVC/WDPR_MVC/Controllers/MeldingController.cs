@@ -162,8 +162,8 @@ namespace WDPR_MVC.Controllers
             return View(melding);
         }
 
-		// TODO: Add middleware zodat alleen moderators en de author de melding
-		// kunnen bewerken (ook bij POST)
+        // TODO: Add middleware zodat alleen moderators en de author de melding
+        // kunnen bewerken (ook bij POST)
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -286,6 +286,8 @@ namespace WDPR_MVC.Controllers
             return View(melding);
         }
 
+		// TODO: Add check if melding is closed
+		// TODO: Show button only when logged in as someone with permission
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddComment(int id, string comment)
@@ -342,6 +344,35 @@ namespace WDPR_MVC.Controllers
             }
 
             return melding.Likes.Count();
+        }
+
+        public async Task<IActionResult> ToggleSluitMelding(int id)
+        {
+            try
+            {
+                var melding = _context.Meldingen.Find(id);
+
+				if (!melding.IsClosed) {
+					melding.IsClosed = true;
+				} else {
+					melding.IsClosed = false;
+				}
+
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!MeldingExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+			return RedirectToAction(nameof(Details), new {id = id });
         }
 
         private bool MeldingExists(int id)
