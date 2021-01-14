@@ -63,8 +63,20 @@
 
 				<p class="text-body" style="white-space: pre-wrap;">@Model.Beschrijving</p>
 
-				<footer>
-					<a href="#" class="card-link float-right mt-2"><small class="text-muted">Report melding</small></a>
+				@if (@Model.ImageName != null) {
+					<img src="/images/@Model.ImageName" loading="auto" class="img-fluid rounded mx-auto d-block" alt="Een foto dat bij de melding hoort">
+				}
+
+				<footer class="d-flex justify-content-end mt-2">
+					@if(UserManager.GetUserId(User) == @Model.AuteurId) {
+						<a asp-action="Edit" asp-route-id="@Model.Id" class="card-link">
+							<small class="text-muted">Bewerk melding</small>
+						</a>
+					} else {
+						<a href="#" class="card-link">
+							<small class="text-muted">Report melding</small>
+						</a>
+					}
 				</footer>
 			</div>
 		</div>

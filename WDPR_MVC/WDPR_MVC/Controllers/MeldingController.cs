@@ -1,8 +1,10 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -138,14 +140,18 @@ namespace WDPR_MVC.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Titel, Beschrijving, IsAnonymous, CategorieId")] Melding melding)
+        public async Task<IActionResult> Create([Bind("Titel, Beschrijving, IsAnonymous, CategorieId, Image")] Melding melding)
         {
+            // Wilt de model niet als valid zetten zonder dit.
             ModelState.Remove("AuteurId");
 
             if (ModelState.IsValid)
             {
                 melding.Auteur = await _um.GetUserAsync(User);
                 melding.DatumAangemaakt = DateTime.Now;
+
+                string fileName = await UploadImageAsync(melding.Image);
+                if (fileName != null) melding.ImageName = fileName;
 
                 _context.Add(melding);
                 await _context.SaveChangesAsync();
@@ -154,6 +160,108 @@ namespace WDPR_MVC.Controllers
 
             ViewBag.Categorieen = await _context.Categorieen.ToListAsync();
             return View(melding);
+        }
+
+		// TODO: Add middleware zodat alleen moderators en de author de melding
+		// kunnen bewerken (ook bij POST)
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var melding = await _context.Meldingen.FindAsync(id);
+
+            if (melding == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.Categorieen = await _context.Categorieen.ToListAsync();
+            return View(melding);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id, Titel, Beschrijving, CategorieId, Image")] Melding melding)
+        {
+            if (id != melding.Id)
+            {
+                return NotFound();
+            }
+
+            // Wilt de model niet als valid zetten zonder dit.
+            // AuteurId is required maar die sturen we niet mee met de POST
+            ModelState.Remove("AuteurId");
+
+            if (ModelState.IsValid)
+            {
+                // TODO: Is er een betere manier om dit te doen?
+                var dbEntityEntry = _context.Entry(melding);
+                dbEntityEntry.Property(m => m.Titel).IsModified = true;
+                dbEntityEntry.Property(m => m.Beschrijving).IsModified = true;
+                dbEntityEntry.Property(m => m.CategorieId).IsModified = true;
+
+                // TODO: verwijder vorige foto?
+                if (melding.Image != null)
+                {
+                    string fileName = await UploadImageAsync(melding.Image);
+                    if (fileName != null)
+                    {
+                        melding.ImageName = fileName;
+                        dbEntityEntry.Property(m => m.ImageName).IsModified = true;
+                    }
+                }
+
+                // Dit zou eigenlijk de code hierboven moeten vervangen maar in
+                // plaats van updaten verwijdert het???
+                //
+                // var oldMelding = _context.Meldingen.First(m => m.Id == id);
+                // _context.Entry(oldMelding).CurrentValues.SetValues(melding);
+
+                try
+                {
+                    // _context.Update(melding);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!MeldingExists(melding.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+
+            ViewBag.Categorieen = await _context.Categorieen.ToListAsync();
+            return View(melding);
+        }
+
+        // Writes image to disk and generates a random file name for safety
+        // TODO: validation etc
+        private async Task<string> UploadImageAsync(IFormFile file)
+        {
+            if (file != null && file.Length > 0)
+            {
+                // Guid should be unique enough for us.
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/images", fileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(fileStream);
+                }
+
+                return fileName;
+            }
+
+            return null;
         }
 
         // TODO: Add check if melding is anonymous
