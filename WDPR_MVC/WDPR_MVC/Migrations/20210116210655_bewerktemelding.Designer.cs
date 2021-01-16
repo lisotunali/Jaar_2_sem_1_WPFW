@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WDPR_MVC.Data;
 
 namespace WDPR_MVC.Migrations
 {
     [DbContext(typeof(MyContext))]
-    partial class MyContextModelSnapshot : ModelSnapshot
+    [Migration("20210116210655_bewerktemelding")]
+    partial class bewerktemelding
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -240,28 +242,6 @@ namespace WDPR_MVC.Migrations
                     b.ToTable("Adres");
                 });
 
-            modelBuilder.Entity("WDPR_MVC.Models.BewerkteMelding", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Beschrijving")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<int>("MeldingId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Titel")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MeldingId");
-
-                    b.ToTable("BewerkteMeldingen");
-                });
-
             modelBuilder.Entity("WDPR_MVC.Models.Categorie", b =>
                 {
                     b.Property<int>("Id")
@@ -333,6 +313,10 @@ namespace WDPR_MVC.Migrations
                     b.Property<DateTime>("DatumAangemaakt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
                     b.Property<string>("ImageName")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
@@ -357,6 +341,8 @@ namespace WDPR_MVC.Migrations
                     b.HasIndex("CategorieId");
 
                     b.ToTable("Meldingen");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("Melding");
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.MeldingLike", b =>
@@ -387,6 +373,18 @@ namespace WDPR_MVC.Migrations
                     b.HasIndex("AuteurReportId");
 
                     b.ToTable("Report");
+                });
+
+            modelBuilder.Entity("WDPR_MVC.Models.BewerkteMelding", b =>
+                {
+                    b.HasBaseType("WDPR_MVC.Models.Melding");
+
+                    b.Property<int>("MeldingId")
+                        .HasColumnType("int");
+
+                    b.HasIndex("MeldingId");
+
+                    b.HasDiscriminator().HasValue("BewerkteMelding");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -449,15 +447,6 @@ namespace WDPR_MVC.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("WDPR_MVC.Models.BewerkteMelding", b =>
-                {
-                    b.HasOne("WDPR_MVC.Models.Melding", "Melding")
-                        .WithMany()
-                        .HasForeignKey("MeldingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("WDPR_MVC.Models.Comment", b =>
                 {
                     b.HasOne("WDPR_MVC.Areas.Identity.Data.ApplicationUser", "AuteurComment")
@@ -513,6 +502,15 @@ namespace WDPR_MVC.Migrations
 
                     b.HasOne("WDPR_MVC.Models.Melding", "Melding")
                         .WithMany("Reports")
+                        .HasForeignKey("MeldingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WDPR_MVC.Models.BewerkteMelding", b =>
+                {
+                    b.HasOne("WDPR_MVC.Models.Melding", "Melding")
+                        .WithMany()
                         .HasForeignKey("MeldingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

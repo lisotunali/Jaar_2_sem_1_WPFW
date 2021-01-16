@@ -164,14 +164,12 @@ namespace WDPR_MVC.Controllers
             return View(melding);
         }
 
-        // TODO: Add middleware zodat alleen moderators en de author de melding
-        // kunnen bewerken (ook bij POST)
         public async Task<IActionResult> Edit(int? id)
         {
             var currentuser = await _um.GetUserAsync(User);
             var melding = await _context.Meldingen.FindAsync(id);
 
-            if (currentuser.Id != melding.Auteur.Id && !User.IsInRole("Mod"))
+            if (!(currentuser.Id == melding.Auteur.Id || User.IsInRole("Mod")))
             {
                 return Unauthorized();
             }
@@ -200,6 +198,15 @@ namespace WDPR_MVC.Controllers
 
             if (ModelState.IsValid)
             {
+                var oudemelding = _context.Meldingen.Find(id);
+                BewerkteMelding nieuwemelding = new BewerkteMelding{ 
+                    Titel = melding.Titel, 
+                    Beschrijving = melding.Beschrijving, 
+                    Melding = oudemelding 
+                };
+                _context.BewerkteMeldingen.Add(nieuwemelding);
+
+                /*
                 // TODO: Is er een betere manier om dit te doen?
                 var dbEntityEntry = _context.Entry(melding);
                 dbEntityEntry.Property(m => m.Titel).IsModified = true;
@@ -222,7 +229,7 @@ namespace WDPR_MVC.Controllers
                 //
                 // var oldMelding = _context.Meldingen.First(m => m.Id == id);
                 // _context.Entry(oldMelding).CurrentValues.SetValues(melding);
-
+                */
                 try
                 {
                     // _context.Update(melding);
