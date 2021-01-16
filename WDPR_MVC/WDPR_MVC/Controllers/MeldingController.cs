@@ -20,11 +20,13 @@ namespace WDPR_MVC.Controllers
     {
         private readonly MyContext _context;
         private readonly UserManager<ApplicationUser> _um;
+        private readonly RoleManager<IdentityRole> _rm;
 
-        public MeldingController(MyContext context, UserManager<ApplicationUser> um)
+        public MeldingController(MyContext context, UserManager<ApplicationUser> um, RoleManager<IdentityRole> rm)
         {
             _context = context;
             _um = um;
+            _rm = rm;
         }
 
         public async Task<IActionResult> Index(
@@ -166,14 +168,15 @@ namespace WDPR_MVC.Controllers
         // kunnen bewerken (ook bij POST)
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            var currentuser = await _um.GetUserAsync(User);
             var melding = await _context.Meldingen.FindAsync(id);
 
-            if (melding == null)
+            if (currentuser.Id != melding.Auteur.Id && !User.IsInRole("Mod"))
+            {
+                return Unauthorized();
+            }
+            
+            if (id == null || melding == null)
             {
                 return NotFound();
             }

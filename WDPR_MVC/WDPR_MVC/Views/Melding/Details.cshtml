@@ -72,7 +72,7 @@
 					<a asp-action="ToggleSluitMelding" asp-route-id="@Model.Id" class="card-link">
 						<small class="text-muted">@(Model.IsClosed ? "Open" : "Sluit") melding</small>
 					</a>
-					@if(UserManager.GetUserId(User) == @Model.AuteurId) {
+					@if(UserManager.GetUserId(User) == @Model.AuteurId || User.IsInRole("Mod")) {
 						<a asp-action="Edit" asp-route-id="@Model.Id" class="card-link">
 							<small class="text-muted">Bewerk melding</small>
 						</a>
