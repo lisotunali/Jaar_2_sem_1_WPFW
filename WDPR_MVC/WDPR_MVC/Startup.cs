@@ -37,7 +37,7 @@ namespace WDPR_MVC
                     options.UseMySql(
                         Configuration.GetConnectionString("MyContextConnection")).UseLazyLoadingProxies());
 
-            services.AddDefaultIdentity<ApplicationUser>(options =>
+            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = true;
                 options.Lockout = new Microsoft.AspNetCore.Identity.LockoutOptions()
@@ -47,7 +47,11 @@ namespace WDPR_MVC
                     MaxFailedAccessAttempts = 5
                 };
             })
-                .AddEntityFrameworkStores<MyContext>();
+                .AddEntityFrameworkStores<MyContext>()
+                .AddRoles<IdentityRole>()
+                .AddRoleManager<RoleManager<IdentityRole>>()
+                .AddDefaultUI()
+                .AddDefaultTokenProviders();
 
             // Set expiry time for email reset token
             services.Configure<DataProtectionTokenProviderOptions>(options =>
