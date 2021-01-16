@@ -206,7 +206,8 @@ namespace WDPR_MVC.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AdresId");
+                    b.HasIndex("AdresId")
+                        .IsUnique();
 
                     b.HasIndex("NormalizedEmail")
                         .HasName("EmailIndex");
@@ -305,13 +306,17 @@ namespace WDPR_MVC.Migrations
 
                     b.Property<string>("Beschrijving")
                         .IsRequired()
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(2000) CHARACTER SET utf8mb4")
+                        .HasMaxLength(2000);
 
                     b.Property<int>("CategorieId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("DatumAangemaakt")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ImageName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<bool>("IsAnonymous")
                         .HasColumnType("tinyint(1)");
@@ -324,7 +329,8 @@ namespace WDPR_MVC.Migrations
 
                     b.Property<string>("Titel")
                         .IsRequired()
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(50) CHARACTER SET utf8mb4")
+                        .HasMaxLength(50);
 
                     b.HasKey("Id");
 
@@ -419,8 +425,8 @@ namespace WDPR_MVC.Migrations
             modelBuilder.Entity("WDPR_MVC.Areas.Identity.Data.ApplicationUser", b =>
                 {
                     b.HasOne("WDPR_MVC.Models.Adres", "Adres")
-                        .WithMany()
-                        .HasForeignKey("AdresId")
+                        .WithOne("User")
+                        .HasForeignKey("WDPR_MVC.Areas.Identity.Data.ApplicationUser", "AdresId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

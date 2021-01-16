@@ -9,8 +9,8 @@ using WDPR_MVC.Data;
 namespace WDPR_MVC.Migrations
 {
     [DbContext(typeof(MyContext))]
-    [Migration("20201210003158_DbsetMeldingen")]
-    partial class DbsetMeldingen
+    [Migration("20210113001621_FirstMigration")]
+    partial class FirstMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -159,6 +159,9 @@ namespace WDPR_MVC.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<int>("AdresId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
@@ -205,6 +208,9 @@ namespace WDPR_MVC.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AdresId")
+                        .IsUnique();
+
                     b.HasIndex("NormalizedEmail")
                         .HasName("EmailIndex");
 
@@ -213,6 +219,31 @@ namespace WDPR_MVC.Migrations
                         .HasName("UserNameIndex");
 
                     b.ToTable("AspNetUsers");
+                });
+
+            modelBuilder.Entity("WDPR_MVC.Models.Adres", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("Huisnummer")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Postcode")
+                        .IsRequired()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Straatnaam")
+                        .IsRequired()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Toevoeging")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Adres");
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.Categorie", b =>
@@ -230,7 +261,7 @@ namespace WDPR_MVC.Migrations
                     b.HasIndex("Naam")
                         .IsUnique();
 
-                    b.ToTable("Categorie");
+                    b.ToTable("Categorieen");
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.Comment", b =>
@@ -271,22 +302,23 @@ namespace WDPR_MVC.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("AantalLikes")
-                        .HasColumnType("int");
-
                     b.Property<string>("AuteurId")
                         .IsRequired()
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
                     b.Property<string>("Beschrijving")
                         .IsRequired()
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(2000) CHARACTER SET utf8mb4")
+                        .HasMaxLength(2000);
 
                     b.Property<int>("CategorieId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("DatumAangemaakt")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ImageName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<bool>("IsAnonymous")
                         .HasColumnType("tinyint(1)");
@@ -299,7 +331,8 @@ namespace WDPR_MVC.Migrations
 
                     b.Property<string>("Titel")
                         .IsRequired()
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(50) CHARACTER SET utf8mb4")
+                        .HasMaxLength(50);
 
                     b.HasKey("Id");
 
@@ -308,6 +341,21 @@ namespace WDPR_MVC.Migrations
                     b.HasIndex("CategorieId");
 
                     b.ToTable("Meldingen");
+                });
+
+            modelBuilder.Entity("WDPR_MVC.Models.MeldingLike", b =>
+                {
+                    b.Property<int>("MeldingId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
+                    b.HasKey("MeldingId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("MeldingLike");
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.Report", b =>
@@ -376,6 +424,15 @@ namespace WDPR_MVC.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WDPR_MVC.Areas.Identity.Data.ApplicationUser", b =>
+                {
+                    b.HasOne("WDPR_MVC.Models.Adres", "Adres")
+                        .WithOne("User")
+                        .HasForeignKey("WDPR_MVC.Areas.Identity.Data.ApplicationUser", "AdresId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("WDPR_MVC.Models.Comment", b =>
                 {
                     b.HasOne("WDPR_MVC.Areas.Identity.Data.ApplicationUser", "AuteurComment")
@@ -402,6 +459,21 @@ namespace WDPR_MVC.Migrations
                     b.HasOne("WDPR_MVC.Models.Categorie", "Categorie")
                         .WithMany("Meldingen")
                         .HasForeignKey("CategorieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WDPR_MVC.Models.MeldingLike", b =>
+                {
+                    b.HasOne("WDPR_MVC.Models.Melding", "Melding")
+                        .WithMany("Likes")
+                        .HasForeignKey("MeldingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WDPR_MVC.Areas.Identity.Data.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
