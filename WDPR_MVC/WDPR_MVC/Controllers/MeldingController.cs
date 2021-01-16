@@ -286,8 +286,8 @@ namespace WDPR_MVC.Controllers
             return View(melding);
         }
 
-		// TODO: Add check if melding is closed
-		// TODO: Show button only when logged in as someone with permission
+        // TODO: Add check if melding is closed
+        // TODO: Show button only when logged in as someone with permission
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddComment(int id, string comment)
@@ -352,11 +352,11 @@ namespace WDPR_MVC.Controllers
             {
                 var melding = _context.Meldingen.Find(id);
 
-				if (!melding.IsClosed) {
-					melding.IsClosed = true;
-				} else {
-					melding.IsClosed = false;
-				}
+                // false = true
+                // true = false
+                //
+                // ;-)
+                melding.IsClosed = !melding.IsClosed;
 
                 await _context.SaveChangesAsync();
             }
@@ -372,7 +372,7 @@ namespace WDPR_MVC.Controllers
                 }
             }
 
-			return RedirectToAction(nameof(Details), new {id = id });
+            return RedirectToAction(nameof(Details), new { id = id });
         }
 
         private bool MeldingExists(int id)
