@@ -61,7 +61,7 @@ namespace WDPR_MVC.Controllers
         {
             if (search == null)
             {
-                return _context.Meldingen;
+                return meldingen;
             }
 
             return meldingen
