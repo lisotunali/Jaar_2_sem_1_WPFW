@@ -140,3 +140,11 @@ a {
   font-size: 1.5em;
   color: Var(--important3);
 }
+
+.liked svg {
+	fill: Var(--important3);
+}
+
+.meldingClosed {
+	border-color: red
+}

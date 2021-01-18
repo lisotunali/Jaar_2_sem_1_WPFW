@@ -86,23 +86,13 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                // Check if adres already exists
-                var adres = await _context.Adres.FirstOrDefaultAsync(a =>
-                    a.Huisnummer == Input.Adres.Huisnummer &&
-                    a.Postcode == Input.Adres.Postcode &&
-                    a.Toevoeging == Input.Adres.Toevoeging
-                );
-
-                if (adres == null)
+                var adres = new Adres
                 {
-                    adres = new Adres
-                    {
-                        Straatnaam = Input.Adres.Straatnaam,
-                        Huisnummer = Input.Adres.Huisnummer,
-                        Toevoeging = Input.Adres.Toevoeging,
-                        Postcode = Input.Adres.Postcode
-                    };
-                }
+                    Straatnaam = Input.Adres.Straatnaam,
+                    Huisnummer = Input.Adres.Huisnummer,
+                    Toevoeging = Input.Adres.Toevoeging,
+                    Postcode = Input.Adres.Postcode
+                };
 
                 var user = new ApplicationUser
                 {
@@ -124,7 +114,7 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                         protocol: Request.Scheme);
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a> (Only valid for 2 days).");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
