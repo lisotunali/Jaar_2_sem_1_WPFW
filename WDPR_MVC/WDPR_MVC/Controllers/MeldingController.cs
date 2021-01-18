@@ -267,7 +267,6 @@ namespace WDPR_MVC.Controllers
         }
 
         // Writes image to disk and generates a random file name for safety
-        // TODO: validation etc
         private async Task<string> UploadImageAsync(IFormFile file)
         {
             if (file != null && file.Length > 0)

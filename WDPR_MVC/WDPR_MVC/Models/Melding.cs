@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using WDPR_MVC.Areas.Identity.Data;
+using WDPR_MVC.Models.CustomValidation;
 
 namespace WDPR_MVC.Models
 {
@@ -40,7 +41,9 @@ namespace WDPR_MVC.Models
         public virtual ICollection<MeldingLike> Likes { get; set; } = new List<MeldingLike>();
 
         // Used for upload image
-		[NotMapped]
+        [NotMapped]
+        [AllowedImageExtensions]
+        [MaxFileSize(10000000, ErrorMessage = "{0} is too large. Max 10 MB")]
         public IFormFile Image { get; set; }
 
         // Unieke naam voor de image
