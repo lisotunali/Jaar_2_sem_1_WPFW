@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WDPR_MVC.Areas.Identity.Data;
+using WDPR_MVC.Authorization;
 using WDPR_MVC.Data;
 using WDPR_MVC.Models;
 using WDPR_MVC.ViewModels;
@@ -21,12 +22,14 @@ namespace WDPR_MVC.Controllers
         private readonly MyContext _context;
         private readonly UserManager<ApplicationUser> _um;
         private readonly RoleManager<IdentityRole> _rm;
+        private readonly IAuthorizationService _as;
 
-        public MeldingController(MyContext context, UserManager<ApplicationUser> um, RoleManager<IdentityRole> rm)
+        public MeldingController(MyContext context, UserManager<ApplicationUser> um, RoleManager<IdentityRole> rm, IAuthorizationService authS)
         {
             _context = context;
             _um = um;
             _rm = rm;
+            _as = authS;
         }
 
         public async Task<IActionResult> Index(
@@ -43,7 +46,7 @@ namespace WDPR_MVC.Controllers
             if (page < 0) page = 0;
 
             // De meldingen. Natuurlijk stuur je nooit anonymous meldingen mee.
-            var meldingen = _context.Meldingen.Where(m => m.IsAnonymous == false);
+            var meldingen = _context.Meldingen.Where(m => !m.IsAnonymous);
 
             // Zoek specifieke melding op titel of beschrijving
             meldingen = Search(meldingen, search);
@@ -169,14 +172,16 @@ namespace WDPR_MVC.Controllers
             var currentuser = await _um.GetUserAsync(User);
             var melding = await _context.Meldingen.FindAsync(id);
 
-            if (!(currentuser.Id == melding.Auteur.Id || User.IsInRole("Mod")))
-            {
-                return Unauthorized();
-            }
-            
             if (id == null || melding == null)
             {
                 return NotFound();
+            }
+
+            var isAuthorized = await _as.AuthorizeAsync(User, melding, MeldingOperations.Update);
+
+            if (!isAuthorized.Succeeded)
+            {
+                return Forbid();
             }
 
             ViewBag.Categorieen = await _context.Categorieen.ToListAsync();
@@ -199,10 +204,18 @@ namespace WDPR_MVC.Controllers
             if (ModelState.IsValid)
             {
                 var oudemelding = _context.Meldingen.Find(id);
-                BewerkteMelding nieuwemelding = new BewerkteMelding{ 
-                    Titel = melding.Titel, 
-                    Beschrijving = melding.Beschrijving, 
-                    Melding = oudemelding 
+                var isAuthorized = await _as.AuthorizeAsync(User, oudemelding, MeldingOperations.Update);
+
+                if (!isAuthorized.Succeeded)
+                {
+                    return Forbid();
+                }
+
+                BewerkteMelding nieuwemelding = new BewerkteMelding
+                {
+                    Titel = melding.Titel,
+                    Beschrijving = melding.Beschrijving,
+                    Melding = oudemelding
                 };
                 _context.BewerkteMeldingen.Add(nieuwemelding);
 
@@ -274,7 +287,6 @@ namespace WDPR_MVC.Controllers
             return null;
         }
 
-        // TODO: Add check if melding is anonymous
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -289,6 +301,16 @@ namespace WDPR_MVC.Controllers
                 return NotFound();
             }
 
+            if (melding.IsAnonymous)
+            {
+                var isAuthorized = await _as.AuthorizeAsync(User, melding, MeldingOperations.ReadAnonymous);
+
+                if (!isAuthorized.Succeeded)
+                {
+                    return Forbid();
+                }
+            }
+
             // Makkelijkste optie voor nu
             melding.KeerBekeken += 1;
             await _context.SaveChangesAsync();
@@ -296,7 +318,6 @@ namespace WDPR_MVC.Controllers
             return View(melding);
         }
 
-        // TODO: Add check if melding is closed
         // TODO: Show button only when logged in as someone with permission
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -307,9 +328,19 @@ namespace WDPR_MVC.Controllers
                 return NotFound();
             }
 
-            _context.Add(new Comment { Inhoud = comment, MeldingId = id, AuteurComment = await _um.GetUserAsync(User), DatumAangemaakt = DateTime.Now });
-            await _context.SaveChangesAsync();
+            var melding = await _context.Meldingen.FirstOrDefaultAsync(m => m.Id == id);
 
+            if (melding == null)
+            {
+                return NotFound();
+            }
+
+            // Only add comment if melding is not closed
+            if (!melding.IsClosed)
+            {
+                _context.Add(new Comment { Inhoud = comment, MeldingId = id, AuteurComment = await _um.GetUserAsync(User), DatumAangemaakt = DateTime.Now });
+                await _context.SaveChangesAsync();
+            }
             return RedirectToAction(nameof(Details), new { id = id });
         }
 
@@ -361,6 +392,12 @@ namespace WDPR_MVC.Controllers
             try
             {
                 var melding = _context.Meldingen.Find(id);
+                var isAuthorized = await _as.AuthorizeAsync(User, melding, MeldingOperations.Lock);
+
+                if (!isAuthorized.Succeeded)
+                {
+                    return Forbid();
+                }
 
                 // false = true
                 // true = false

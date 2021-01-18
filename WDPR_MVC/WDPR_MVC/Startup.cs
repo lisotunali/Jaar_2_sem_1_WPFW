@@ -16,6 +16,8 @@ using WDPR_MVC.Data;
 using WDPR_MVC.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using WDPR_MVC.Authorization;
 
 namespace WDPR_MVC
 {
@@ -63,6 +65,16 @@ namespace WDPR_MVC
             services.Configure<AuthMessageSenderOptions>(Configuration.GetSection("SuperSecretMailInfo"));
 
             services.AddRazorPages();
+
+            // Authorization handlers
+            services.AddScoped<IAuthorizationHandler, UserIsMeldingAuthorAuthorizationHandler>();
+            services.AddSingleton<IAuthorizationHandler, UserIsModeratorAuthorizationHandler>();
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CanViewProtectedPages", policy =>
+                        policy.RequireRole("Mod"));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
