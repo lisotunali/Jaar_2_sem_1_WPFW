@@ -18,6 +18,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using WDPR_MVC.Authorization;
+using GoogleReCaptcha.V3.Interface;
+using GoogleReCaptcha.V3;
 
 namespace WDPR_MVC
 {
@@ -34,6 +36,8 @@ namespace WDPR_MVC
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            services.AddHttpClient<ICaptchaValidator, GoogleReCaptchaValidator>();
 
             services.AddDbContext<MyContext>(options =>
                     options.UseMySql(

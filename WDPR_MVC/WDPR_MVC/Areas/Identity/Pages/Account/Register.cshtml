@@ -1,4 +1,5 @@
 ﻿@page
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 @model RegisterModel
 @{
     ViewData["Title"] = "Register";
@@ -9,6 +10,7 @@
 <div class="row">
     <div class="col-md-4">
         <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <input name="Input.CaptchaString" id="captchaInput" value="" />
             <h4>Create a new account.</h4>
             <hr />
             <div asp-validation-summary="All" class="text-danger"></div>
@@ -84,4 +86,12 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["googleReCaptcha:SiteKey"]"></script>
+    <script>
+    grecaptcha.ready(function() {
+        grecaptcha.execute('@Configuration["googleReCaptcha:SiteKey"]', { action: 'contact' }).then(function (token) {
+            $("#captchaInput").val(token);
+        });
+    });
+    </script>
 }

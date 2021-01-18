@@ -14,6 +14,8 @@ using Microsoft.Extensions.Logging;
 using WDPR_MVC.Areas.Identity.Data;
 using WDPR_MVC.Data;
 using Microsoft.EntityFrameworkCore;
+using GoogleReCaptcha.V3.Interface;
+using Microsoft.Extensions.Configuration;
 
 namespace WDPR_MVC.Areas.Identity.Pages.Account
 {
@@ -24,16 +26,21 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
         private readonly MyContext _context;
+        private readonly ICaptchaValidator _captchaValidator;
 
         public LoginModel(SignInManager<ApplicationUser> signInManager,
             ILogger<LoginModel> logger,
             UserManager<ApplicationUser> userManager,
-            MyContext mycontext)
+            MyContext mycontext,
+            ICaptchaValidator captchaValidator,
+            IConfiguration configurationKey)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _context = mycontext;
+            _captchaValidator = captchaValidator;
+            captchaValidator.UpdateSecretKey(configurationKey["googleReCaptcha:SecretKeyV2"]);
         }
 
         [BindProperty]
@@ -45,6 +52,7 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
 
         [TempData]
         public string ErrorMessage { get; set; }
+        public ICaptchaValidator CaptchaValidator { get; }
 
         public class InputModel
         {
@@ -80,6 +88,12 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
+            string recaptchaResponse = this.Request.Form["g-recaptcha-response"];
+            var captchaPassed = await _captchaValidator.IsCaptchaPassedAsync(recaptchaResponse);
+            if (recaptchaResponse != null && !captchaPassed)
+            {
+                ModelState.AddModelError("captcha", "Captcha validation failed");
+            }
 
             if (ModelState.IsValid)
             {
@@ -108,6 +122,15 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                     if (user != null && user.AccessFailedCount >= 3)
                     {
                         errorMessage += " Bent u uw wachtwoord vergeten?";
+                        if (!captchaPassed)
+                        {
+                            ModelState.AddModelError("captcha", "Captcha validation failed");
+                        }
+                    }
+
+                    if (user?.AccessFailedCount >= 2)
+                    {
+                        ViewData["ShowCap"] = true;
                     }
 
                     ModelState.AddModelError(string.Empty, errorMessage);
