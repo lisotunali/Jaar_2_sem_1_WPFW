@@ -79,6 +79,7 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
+            var wait = Task.Delay(1420);
             returnUrl = returnUrl ?? Url.Content("~/");
 
             if (ModelState.IsValid)
@@ -89,15 +90,18 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+                    await wait;
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
                 {
+                    await wait;
                     return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
                 }
                 if (result.IsLockedOut)
                 {
                     _logger.LogWarning("User account locked out.");
+                    await wait;
                     return RedirectToPage("./Lockout");
                 }
                 else
@@ -111,11 +115,13 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                     }
 
                     ModelState.AddModelError(string.Empty, errorMessage);
+                    await wait;
                     return Page();
                 }
             }
 
             // If we got this far, something failed, redisplay form
+            await wait;
             return Page();
         }
     }

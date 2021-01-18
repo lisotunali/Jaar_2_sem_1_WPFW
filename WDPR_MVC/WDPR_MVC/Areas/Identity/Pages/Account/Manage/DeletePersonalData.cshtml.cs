@@ -1,11 +1,15 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using WDPR_MVC.Areas.Identity.Data;
+using WDPR_MVC.Data;
+using WDPR_MVC.Models;
 
 namespace WDPR_MVC.Areas.Identity.Pages.Account.Manage
 {
@@ -14,15 +18,18 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<DeletePersonalDataModel> _logger;
+        private readonly MyContext _context;
 
         public DeletePersonalDataModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            ILogger<DeletePersonalDataModel> logger)
+            ILogger<DeletePersonalDataModel> logger,
+            MyContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _context = context;
         }
 
         [BindProperty]
@@ -66,7 +73,14 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account.Manage
                     return Page();
                 }
             }
-
+            var usersmeldingen = _context.Users.Find(_userManager.GetUserId(User)).Meldingen;
+            var removedId =  _context.Users.First(m => m.Email == "codingisvital@gmail.com").Id;
+            foreach (Melding m in usersmeldingen)
+            {
+                m.AuteurId = removedId;
+            }
+            await _context.SaveChangesAsync();
+            
             var result = await _userManager.DeleteAsync(user);
             var userId = await _userManager.GetUserIdAsync(user);
             if (!result.Succeeded)

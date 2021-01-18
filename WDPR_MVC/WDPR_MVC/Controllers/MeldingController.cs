@@ -32,6 +32,8 @@ namespace WDPR_MVC.Controllers
             _as = authS;
         }
 
+        
+
         public async Task<IActionResult> Index(
             int page,
             string search,
@@ -47,6 +49,7 @@ namespace WDPR_MVC.Controllers
 
             // De meldingen. Natuurlijk stuur je nooit anonymous meldingen mee.
             var meldingen = _context.Meldingen.Where(m => !m.IsAnonymous);
+
 
             // Zoek specifieke melding op titel of beschrijving
             meldingen = Search(meldingen, search);
