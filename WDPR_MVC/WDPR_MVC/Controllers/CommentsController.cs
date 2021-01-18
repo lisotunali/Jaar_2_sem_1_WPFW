@@ -1,22 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using WDPR_MVC.Areas.Identity.Data;
 using WDPR_MVC.Data;
 using WDPR_MVC.Models;
 
 namespace WDPR_MVC.Controllers
 {
+    [Authorize(Policy = "CanViewProtectedPages")]
     public class CommentsController : Controller
     {
         private readonly MyContext _context;
+        private readonly UserManager<ApplicationUser> _um;
 
-        public CommentsController(MyContext context)
+        public CommentsController(MyContext context, UserManager<ApplicationUser> um)
         {
             _context = context;
+            _um = um;
         }
 
         // GET: Comments
@@ -106,6 +110,8 @@ namespace WDPR_MVC.Controllers
             {
                 try
                 {
+                    var user = await _um.GetUserAsync(User);
+                    comment.Inhoud += $"\n\n[Bewerkt door moderator {user.UserName}]";
                     _context.Update(comment);
                     await _context.SaveChangesAsync();
                 }
