@@ -50,5 +50,7 @@ namespace WDPR_MVC.Data
             builder.Entity<MeldingLike>()
                 .HasKey(ml => new { ml.MeldingId, ml.UserId });
         }
+
+        public DbSet<WDPR_MVC.Models.Comment> Comment { get; set; }
     }
 }
