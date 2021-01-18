@@ -273,7 +273,16 @@ namespace WDPR_MVC.Controllers
             {
                 // Guid should be unique enough for us.
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/images", fileName);
+
+                string directory = @"wwwroot/images";
+
+                // If folder doesn't exist create it.
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), directory, fileName);
 
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
