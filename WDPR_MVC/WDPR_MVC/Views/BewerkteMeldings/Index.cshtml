@@ -1,0 +1,46 @@
+﻿@model IEnumerable<WDPR_MVC.Models.BewerkteMelding>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Melding)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Titel)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Beschrijving)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                <a asp-route-id="@item.MeldingId" asp-action="Details" asp-controller="Melding">@Html.DisplayFor(modelItem => item.Melding.Titel)</a>
+
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Titel)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Beschrijving)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Goedkeuren" asp-route-id="@item.Id"> Goedkeuren </a> |
+                <a asp-action="Delete" asp-route-id="@item.Id"> Afwijzen </a> 
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

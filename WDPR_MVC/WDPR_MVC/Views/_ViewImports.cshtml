@@ -2,3 +2,8 @@
 @using WDPR_MVC.Models
 @using WDPR_MVC.ViewModels
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+
+@using WDPR_MVC.Authorization;
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService

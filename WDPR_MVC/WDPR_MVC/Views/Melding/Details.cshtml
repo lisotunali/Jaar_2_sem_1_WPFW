@@ -69,10 +69,12 @@
 				}
 
 				<footer class="d-flex justify-content-end mt-2">
-					<a asp-action="ToggleSluitMelding" asp-route-id="@Model.Id" class="card-link">
-						<small class="text-muted">@(Model.IsClosed ? "Open" : "Sluit") melding</small>
-					</a>
-					@if(UserManager.GetUserId(User) == @Model.AuteurId) {
+					@if((await AuthorizationService.AuthorizeAsync(User, Model, MeldingOperations.Lock)).Succeeded) {
+						<a asp-action="ToggleSluitMelding" asp-route-id="@Model.Id" class="card-link">
+							<small class="text-muted">@(Model.IsClosed ? "Open" : "Sluit") melding</small>
+						</a>
+					}
+					@if((await AuthorizationService.AuthorizeAsync(User, Model, MeldingOperations.Update)).Succeeded) {
 						<a asp-action="Edit" asp-route-id="@Model.Id" class="card-link">
 							<small class="text-muted">Bewerk melding</small>
 						</a>
