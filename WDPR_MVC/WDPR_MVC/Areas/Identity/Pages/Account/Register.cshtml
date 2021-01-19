@@ -9,30 +9,31 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <input name="Input.CaptchaString" id="captchaInput" value="" />
+        <form asp-route-returnUrl="@Model.ReturnUrl" class="address" method="post">
+            <input type="hidden" name="Input.CaptchaString" id="captchaInput" value="" />
             <h4>Create a new account.</h4>
             <hr />
             <div asp-validation-summary="All" class="text-danger"></div>
+            <span class="message"></span><br />
             <div class="form-group">
-                <label asp-for="Input.Adres.Straatnaam"></label>
-                <input asp-for="Input.Adres.Straatnaam" class="form-control" />
-                <span asp-validation-for="Input.Adres.Straatnaam" class="text-danger"></span>
+                <label asp-for="Input.Adres.Postcode"></label>
+                <input asp-for="Input.Adres.Postcode" class="form-control postcode" />
+                <span asp-validation-for="Input.Adres.Postcode" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Input.Adres.Huisnummer"></label>
-                <input asp-for="Input.Adres.Huisnummer" class="form-control" />
+                <input asp-for="Input.Adres.Huisnummer" class="form-control streetnumber" />
                 <span asp-validation-for="Input.Adres.Huisnummer" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Input.Adres.Toevoeging"></label>
-                <input asp-for="Input.Adres.Toevoeging" class="form-control" />
+                <input asp-for="Input.Adres.Toevoeging" class="form-control extension" />
                 <span asp-validation-for="Input.Adres.Toevoeging" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Input.Adres.Postcode"></label>
-                <input asp-for="Input.Adres.Postcode" class="form-control" />
-                <span asp-validation-for="Input.Adres.Postcode" class="text-danger"></span>
+                <label asp-for="Input.Adres.Straatnaam"></label>
+                <input readonly="readonly" asp-for="Input.Adres.Straatnaam" class="form-control street" />
+                <span asp-validation-for="Input.Adres.Straatnaam" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Input.Email"></label>
@@ -93,5 +94,13 @@
             $("#captchaInput").val(token);
         });
     });
+    </script>
+    
+    <script type="text/javascript" src="~/js/autocomplete.js"></script>
+    <script type="text/javascript">
+        var pro6pp_auth_key = '@Configuration["pro6pp:AuthKey"]';
+        $(document).ready(function () {
+            $('.address').applyAutocomplete();
+        });
     </script>
 }

@@ -90,6 +90,7 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
             returnUrl = returnUrl ?? Url.Content("~/");
             string recaptchaResponse = this.Request.Form["g-recaptcha-response"];
             var captchaPassed = await _captchaValidator.IsCaptchaPassedAsync(recaptchaResponse);
+
             if (recaptchaResponse != null && !captchaPassed)
             {
                 ModelState.AddModelError("captcha", "Captcha validation failed");
@@ -100,11 +101,14 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: true);
+                
+
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }
+
                 if (result.RequiresTwoFactor)
                 {
                     return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
@@ -116,10 +120,9 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == Input.Email);
                     var errorMessage = "Invalid login attempt.";
-
-                    if (user != null && user.AccessFailedCount >= 3)
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == Input.Email);
+                    if (user != null && user?.AccessFailedCount >= 3)
                     {
                         errorMessage += " Bent u uw wachtwoord vergeten?";
                         if (!captchaPassed)
