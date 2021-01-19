@@ -18,6 +18,7 @@ using GoogleReCaptcha.V3.Interface;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
+using WDPR_MVC.Models;
 
 namespace WDPR_MVC.Areas.Identity.Pages.Account
 {
@@ -75,6 +76,11 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
+            var currentIp = getCurrentIp();
+            var ip = _context.IPAdressen.FirstOrDefault(i => i.IP.Equals(currentIp));
+
+            if (ip?.FailCount >= 2) ViewData["ShowCap"] = true;
+
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
                 ModelState.AddModelError(string.Empty, ErrorMessage);
@@ -94,11 +100,19 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
         {
             returnUrl = returnUrl ?? Url.Content("~/");
             string recaptchaResponse = this.Request.Form["g-recaptcha-response"];
-            var captchaPassed = await _captchaValidator.IsCaptchaPassedAsync(recaptchaResponse);
 
-            if (recaptchaResponse != null && !captchaPassed)
+            var currentIp = getCurrentIp();
+            var ip = await _context.IPAdressen.FirstOrDefaultAsync(i => i.IP.Equals(currentIp));
+
+            if (ip != null && ip.FailCount >= 2)
             {
-                ModelState.AddModelError("captcha", "Captcha validation failed");
+                var captchaPassed = await _captchaValidator.IsCaptchaPassedAsync(recaptchaResponse);
+                if (recaptchaResponse != null && !captchaPassed)
+                {
+                    ModelState.AddModelError("captcha", "Captcha validation failed");
+                    _context.IPAdressen.FirstOrDefault(i => i.IP.Equals(currentIp));
+                    ViewData["ShowCap"] = true;
+                }
             }
 
             if (ModelState.IsValid)
@@ -107,15 +121,9 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == Input.Email);
                 if (user != null)
                 {
-                    // Get current ip
-                    var currentIp = HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
-                    if (Request.Headers.ContainsKey("X-Forwarded-For"))
-                    {
-                        currentIp = Request.Headers["X-Forwarded-For"].FirstOrDefault();
-                    }
 
                     // Check if current user ip is known
-                    var known = user.KnownIps.FirstOrDefault(i => i.Ip == currentIp);
+                    var known = await user.KnownIps.FirstOrDefaultAsync(i => i.Ip == currentIp);
 
                     // FIXME: Wat gaan we doen als deny?
                     if (known?.Status == KnownIpStatus.Deny)
@@ -173,6 +181,11 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
+                    if (ip != null) {
+                        _context.IPAdressen.Remove(ip);
+                        await _context.SaveChangesAsync();
+                    }
+
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }
@@ -189,20 +202,22 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                 else
                 {
                     var errorMessage = "Invalid login attempt.";
-                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == Input.Email);
+                    
+                    if (ip == null)
+                    {
+                        ip = new IPModel { IP= currentIp, FailCount= 0};
+                        await _context.IPAdressen.AddAsync(ip);
+                    }
+
                     if (user != null && user?.AccessFailedCount >= 3)
                     {
                         errorMessage += " Bent u uw wachtwoord vergeten?";
-                        if (!captchaPassed)
-                        {
-                            ModelState.AddModelError("captcha", "Captcha validation failed");
-                        }
                     }
 
-                    if (user?.AccessFailedCount >= 2)
-                    {
-                        ViewData["ShowCap"] = true;
-                    }
+                    ip.FailCount++;
+                    await _context.SaveChangesAsync();
+
+                    if (ip.FailCount >= 2) ViewData["ShowCap"] = true;
 
                     ModelState.AddModelError(string.Empty, errorMessage);
                     return Page();
@@ -211,6 +226,17 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
 
             // If we got this far, something failed, redisplay form
             return Page();
+        }
+
+        private string getCurrentIp() {
+            // Get current ip
+            var currentIp = HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
+            if (Request.Headers.ContainsKey("X-Forwarded-For"))
+            {
+                currentIp = Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            }
+
+            return currentIp;
         }
     }
 }

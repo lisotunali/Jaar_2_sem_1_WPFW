@@ -51,7 +51,7 @@ namespace WDPR_MVC
                 {
                     AllowedForNewUsers = true,
                     DefaultLockoutTimeSpan = TimeSpan.FromSeconds(10),
-                    MaxFailedAccessAttempts = 5
+                    MaxFailedAccessAttempts = 8
                 };
             })
                 .AddEntityFrameworkStores<MyContext>()
