@@ -123,7 +123,7 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                 {
 
                     // Check if current user ip is known
-                    var known = await user.KnownIps.FirstOrDefaultAsync(i => i.Ip == currentIp);
+                    var known = user.KnownIps.FirstOrDefault(i => i.Ip == currentIp);
 
                     // FIXME: Wat gaan we doen als deny?
                     if (known?.Status == KnownIpStatus.Deny)
