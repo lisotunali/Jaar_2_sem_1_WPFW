@@ -13,7 +13,7 @@ namespace WDPR_MVC.Data
     public class MyContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<Melding> Meldingen { get; set; }
-        public DbSet<BewerkteMelding> BewerkteMeldingen {get; set;}
+        public DbSet<BewerkteMelding> BewerkteMeldingen { get; set; }
         public DbSet<Categorie> Categorieen { get; set; }
         public DbSet<Adres> Adres { get; set; }
 
@@ -49,6 +49,13 @@ namespace WDPR_MVC.Data
             //Composite key
             builder.Entity<MeldingLike>()
                 .HasKey(ml => new { ml.MeldingId, ml.UserId });
+
+            // KnownIpStatus
+            builder.Entity<KnownIp>()
+                .Property(i => i.Status)
+                .HasConversion(
+                        i => i.ToString(),
+                        i => (KnownIpStatus)Enum.Parse(typeof(KnownIpStatus), i));
         }
     }
 }
