@@ -106,10 +106,18 @@
 				</header>
 
 				<div class="card-body">
-					<p class="text-body mb-0">@comment.Inhoud</p>
+					<p class="text-body mb-0" style="white-space: pre-wrap;">@comment.Inhoud</p>
 
-					<footer>
-						<a href="#" class="card-link float-right mt-2"><small class="text-muted">Report reactie</small></a>
+					<footer class="d-flex justify-content-end mt-2">
+						@if((await AuthorizationService.AuthorizeAsync(User, Model, MeldingOperations.Update)).Succeeded) {
+							<a asp-controller="Comments" asp-action="Edit" asp-route-id="@comment.Id" class="card-link">
+								<small class="text-muted">Bewerk</small>
+							</a>
+						}
+
+						<a href="#" class="card-link">
+							<small class="text-muted">Report reactie</small>
+						</a>
 					</footer>
 				</div>
 			</div>

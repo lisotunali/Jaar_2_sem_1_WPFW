@@ -48,6 +48,7 @@ namespace WDPR_MVC.Controllers
             // De meldingen. Natuurlijk stuur je nooit anonymous meldingen mee.
             var meldingen = _context.Meldingen.Where(m => !m.IsAnonymous);
 
+
             // Zoek specifieke melding op titel of beschrijving
             meldingen = Search(meldingen, search);
 
@@ -70,7 +71,6 @@ namespace WDPR_MVC.Controllers
             return meldingen
                 .Where(m => m.Beschrijving.Contains(search) || m.Titel.Contains(search));
         }
-
 
         // Er moet gesorteerd kunnen worden op aantal views, aantal likes, en
         // datum.
