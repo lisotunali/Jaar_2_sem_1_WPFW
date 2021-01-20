@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using GoogleReCaptcha.V3.Interface;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -28,19 +29,22 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly MyContext _context;
+        private readonly ICaptchaValidator _captchaValidator;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
-            MyContext mycontext)
+            MyContext mycontext,
+            ICaptchaValidator captchaValidator)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
             _context = mycontext;
+            _captchaValidator = captchaValidator;
         }
 
         [BindProperty]
@@ -72,6 +76,8 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+
+            public string CaptchaString { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -84,8 +90,15 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
         {
             returnUrl = returnUrl ?? Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            if (!await _captchaValidator.IsCaptchaPassedAsync(Input.CaptchaString))
+            {
+                ModelState.AddModelError("captcha", "Captcha validation failed");
+            }
+
             if (ModelState.IsValid)
             {
+                TempData["Message"] = "Success";
                 var adres = new Adres
                 {
                     Straatnaam = Input.Adres.Straatnaam,
