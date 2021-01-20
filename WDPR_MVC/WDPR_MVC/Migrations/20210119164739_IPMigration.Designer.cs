@@ -9,8 +9,8 @@ using WDPR_MVC.Data;
 namespace WDPR_MVC.Migrations
 {
     [DbContext(typeof(MyContext))]
-    [Migration("20201211030333_changeLikeToOwnClass")]
-    partial class changeLikeToOwnClass
+    [Migration("20210119164739_IPMigration")]
+    partial class IPMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -94,12 +94,10 @@ namespace WDPR_MVC.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("varchar(128) CHARACTER SET utf8mb4")
-                        .HasMaxLength(128);
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("varchar(128) CHARACTER SET utf8mb4")
-                        .HasMaxLength(128);
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
@@ -136,12 +134,10 @@ namespace WDPR_MVC.Migrations
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("varchar(128) CHARACTER SET utf8mb4")
-                        .HasMaxLength(128);
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
                     b.Property<string>("Name")
-                        .HasColumnType("varchar(128) CHARACTER SET utf8mb4")
-                        .HasMaxLength(128);
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
 
                     b.Property<string>("Value")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
@@ -208,7 +204,8 @@ namespace WDPR_MVC.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AdresId");
+                    b.HasIndex("AdresId")
+                        .IsUnique();
 
                     b.HasIndex("NormalizedEmail")
                         .HasName("EmailIndex");
@@ -218,6 +215,30 @@ namespace WDPR_MVC.Migrations
                         .HasName("UserNameIndex");
 
                     b.ToTable("AspNetUsers");
+                });
+
+            modelBuilder.Entity("WDPR_MVC.Areas.Identity.Data.KnownIp", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Ip")
+                        .IsRequired()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.ToTable("KnownIp");
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.Adres", b =>
@@ -243,6 +264,28 @@ namespace WDPR_MVC.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Adres");
+                });
+
+            modelBuilder.Entity("WDPR_MVC.Models.BewerkteMelding", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Beschrijving")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<int>("MeldingId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Titel")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MeldingId");
+
+                    b.ToTable("BewerkteMeldingen");
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.Categorie", b =>
@@ -295,6 +338,23 @@ namespace WDPR_MVC.Migrations
                     b.ToTable("Comment");
                 });
 
+            modelBuilder.Entity("WDPR_MVC.Models.IPModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("FailCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("IP")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("IPAdressen");
+                });
+
             modelBuilder.Entity("WDPR_MVC.Models.Melding", b =>
                 {
                     b.Property<int>("Id")
@@ -307,13 +367,17 @@ namespace WDPR_MVC.Migrations
 
                     b.Property<string>("Beschrijving")
                         .IsRequired()
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(2000) CHARACTER SET utf8mb4")
+                        .HasMaxLength(2000);
 
                     b.Property<int>("CategorieId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("DatumAangemaakt")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ImageName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<bool>("IsAnonymous")
                         .HasColumnType("tinyint(1)");
@@ -326,7 +390,8 @@ namespace WDPR_MVC.Migrations
 
                     b.Property<string>("Titel")
                         .IsRequired()
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("varchar(50) CHARACTER SET utf8mb4")
+                        .HasMaxLength(50);
 
                     b.HasKey("Id");
 
@@ -421,8 +486,24 @@ namespace WDPR_MVC.Migrations
             modelBuilder.Entity("WDPR_MVC.Areas.Identity.Data.ApplicationUser", b =>
                 {
                     b.HasOne("WDPR_MVC.Models.Adres", "Adres")
+                        .WithOne("User")
+                        .HasForeignKey("WDPR_MVC.Areas.Identity.Data.ApplicationUser", "AdresId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WDPR_MVC.Areas.Identity.Data.KnownIp", b =>
+                {
+                    b.HasOne("WDPR_MVC.Areas.Identity.Data.ApplicationUser", null)
+                        .WithMany("KnownIps")
+                        .HasForeignKey("ApplicationUserId");
+                });
+
+            modelBuilder.Entity("WDPR_MVC.Models.BewerkteMelding", b =>
+                {
+                    b.HasOne("WDPR_MVC.Models.Melding", "Melding")
                         .WithMany()
-                        .HasForeignKey("AdresId")
+                        .HasForeignKey("MeldingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
