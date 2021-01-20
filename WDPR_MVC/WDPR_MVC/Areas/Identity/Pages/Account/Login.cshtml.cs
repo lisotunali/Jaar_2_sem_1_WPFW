@@ -121,7 +121,6 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == Input.Email);
                 if (user != null)
                 {
-
                     // Check if current user ip is known
                     var known = user.KnownIps.FirstOrDefault(i => i.Ip == currentIp);
 
@@ -135,32 +134,21 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                     // If unknown send another mail to confirm status?
                     if (known?.Status == KnownIpStatus.Unknown)
                     {
-                        var token = await _userManager.GenerateUserTokenAsync(user, "Default", "ip-validation" + currentIp);
-                        Console.WriteLine(token);
+                        await sendEmail(user, known, returnUrl);
                     }
 
                     // User has ip's and this one is not found send email to confirm ip
                     if (user.KnownIps.Any() && known == null)
                     {
-                        user.KnownIps.Add(new KnownIp
+                        var newKnownIp = new KnownIp
                         {
                             Ip = currentIp,
                             Status = KnownIpStatus.Unknown
-                        });
+                        };
 
-                        var code = await _userManager.GenerateUserTokenAsync(user, "Default", "ip-validation" + currentIp);
-                        Console.WriteLine(code);
-
-                        //code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                        // TODO: Actually do this KEKW
-                        // var callbackUrl = Url.Page(
-                        //     "/Account/ConfirmEmail",
-                        //     pageHandler: null,
-                        //     values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
-                        //     protocol: Request.Scheme);
-
-                        // await _emailSender.SendEmailAsync(user.Email, "New Login From Ip",
-                        //     $"We detected a new Ip login please confirm that this was you by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>accepting</a> or <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>denying access</a> (Only valid for 2 days).");
+                        user.KnownIps.Add(newKnownIp);
+                        await _context.SaveChangesAsync();
+                        await sendEmail(user, newKnownIp, returnUrl);
                     }
 
                     // FIXME: Doesn't have any known ip's should we trust the first one?
@@ -177,11 +165,11 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: true);
-                
 
                 if (result.Succeeded)
                 {
-                    if (ip != null) {
+                    if (ip != null)
+                    {
                         _context.IPAdressen.Remove(ip);
                         await _context.SaveChangesAsync();
                     }
@@ -202,10 +190,10 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                 else
                 {
                     var errorMessage = "Invalid login attempt.";
-                    
+
                     if (ip == null)
                     {
-                        ip = new IPModel { IP= currentIp, FailCount= 0};
+                        ip = new IPModel { IP = currentIp, FailCount = 0 };
                         await _context.IPAdressen.AddAsync(ip);
                     }
 
@@ -228,7 +216,8 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private string getCurrentIp() {
+        private string getCurrentIp()
+        {
             // Get current ip
             var currentIp = HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
             if (Request.Headers.ContainsKey("X-Forwarded-For"))
@@ -237,6 +226,31 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
             }
 
             return currentIp;
+        }
+
+        private async Task sendEmail(ApplicationUser user, KnownIp knownIp, string returnUrl)
+        {
+            var code = await _userManager.GenerateUserTokenAsync(user, "Default", "ip-validation" + knownIp.Ip);
+
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var callbackUrlAccept = Url.Page(
+                "/Account/ConfirmIp",
+                pageHandler: null,
+                values: new { area = "Identity", userId = user.Id, code = code, about = knownIp.Id, allow = true, returnUrl = returnUrl },
+                protocol: Request.Scheme);
+
+            var callbackUrlDeny = Url.Page(
+                "/Account/ConfirmIp",
+                pageHandler: null,
+                values: new { area = "Identity", userId = user.Id, code = code, about = knownIp.Id, allow = false, returnUrl = returnUrl },
+                protocol: Request.Scheme);
+
+            // Outlook accepteert dit niet :( dus dan maar alles aan elkaar
+            //await _emailSender.SendEmailAsync(user.Email, "We noticed a new sign in to your Buurtje account",
+            //    $"Hello {user.UserName},<br><br>We detected a new Ip login attempt on {DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss")} {TimeZoneInfo.Local.DisplayName}.<br><br>please confirm that this was you by <a href='{HtmlEncoder.Default.Encode(callbackUrlAccept)}'>allowing</a> or <a href='{HtmlEncoder.Default.Encode(callbackUrlDeny)}'>denying</a> access to this IP address.<br>(Only valid for 2 days).");
+
+            await _emailSender.SendEmailAsync(user.Email, "We noticed a new sign in to your Buurtje account",
+                $"Hello {user.UserName}, We detected a new Ip login attempt on {DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss")} {TimeZoneInfo.Local.DisplayName}. Please confirm that this was you by <a href='{HtmlEncoder.Default.Encode(callbackUrlAccept)}'>allowing</a> or <a href='{HtmlEncoder.Default.Encode(callbackUrlDeny)}'>denying</a> access to this IP address. (Only valid for 2 days).");
         }
     }
 }

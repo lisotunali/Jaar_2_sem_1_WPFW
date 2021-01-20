@@ -17,6 +17,7 @@ namespace WDPR_MVC.Data
         public DbSet<Categorie> Categorieen { get; set; }
         public DbSet<Adres> Adres { get; set; }
         public DbSet<IPModel> IPAdressen { get; set; }
+        public DbSet<KnownIp> KnownIps { get; set; }
 
         public MyContext(DbContextOptions<MyContext> options)
             : base(options)
