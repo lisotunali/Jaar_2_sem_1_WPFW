@@ -425,6 +425,29 @@ namespace WDPR_MVC.Controllers
             return RedirectToAction(nameof(Details), new { id = id });
         }
 
+        public async Task<IActionResult> Report(int id)
+        {
+
+            if (!MeldingExists(id))
+            {
+                return NotFound();
+            }
+
+            var melding = _context.Meldingen.Find(id);
+            var userId = _um.GetUserId(User);
+
+            // Check if already exists
+            if (melding.Reports.Any(m => m.AuteurReportId == userId)) {
+                return Ok("U heeft deze melding reeds succesvol gerapporteerd! Bedankt voor uw geduld. :)");
+            }
+
+            // If not add..
+            melding.Reports.Add(new Report { Melding = melding, AuteurReportId = userId});
+            _context.SaveChanges();
+
+            return Ok("De melding is gerapporteerd aan het moderatorteam en zij zullen dit in behandeling nemen.");
+        }
+
         private bool MeldingExists(int id)
         {
             return _context.Meldingen.Any(e => e.Id == id);

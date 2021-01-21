@@ -10,6 +10,8 @@
 
 @inject UserManager<ApplicationUser> UserManager
 
+<div id="alert"></div>
+
 <article class="row">
 	<section class="col-lg-12 mb-3">
 		<div class="card mb-2 @closedClass">
@@ -79,8 +81,8 @@
 							<small class="text-muted">Bewerk melding</small>
 						</a>
 					} else {
-						<a href="#" class="card-link">
-							<small class="text-muted">Report melding</small>
+						<a href="#" id="reportMelding" class="card-link">
+							<small class="text-danger">Report melding</small>
 						</a>
 					}
 				</footer>
@@ -108,9 +110,9 @@
 				<div class="card-body">
 					<p class="text-body mb-0">@comment.Inhoud</p>
 
-					<footer>
+					@*<footer>
 						<a href="#" class="card-link float-right mt-2"><small class="text-muted">Report reactie</small></a>
-					</footer>
+					</footer>*@
 				</div>
 			</div>
 		</article>
@@ -141,6 +143,12 @@
     const like = document.getElementById("like");
     like.addEventListener("click", addLike);
     like.addEventListener("keydown", addLikeAccessibility);
+
+    const melding = document.getElementById("reportMelding");
+	if (melding != null) {
+		melding.addEventListener("click", reportMelding);
+		melding.addEventListener("keydown", reportMelding);
+	}
 
     let isSending = false;
 
@@ -182,5 +190,11 @@
         currentLikes.innerHTML = likes;
         isSending = false;
     }
+
+	async function reportMelding() {
+		const response = await fetch("/Melding/Report/@Model.Id");
+		const result = await response.text();
+		document.getElementById("alert").innerHTML = `<div class="alert alert-danger" role="alert">${result}</div>`;
+	}
 </script>
 }
