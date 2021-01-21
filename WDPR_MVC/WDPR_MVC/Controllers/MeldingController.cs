@@ -32,8 +32,6 @@ namespace WDPR_MVC.Controllers
             _as = authS;
         }
 
-        
-
         public async Task<IActionResult> Index(
             int page,
             string search,
@@ -73,7 +71,6 @@ namespace WDPR_MVC.Controllers
             return meldingen
                 .Where(m => m.Beschrijving.Contains(search) || m.Titel.Contains(search));
         }
-
 
         // Er moet gesorteerd kunnen worden op aantal views, aantal likes, en
         // datum.
