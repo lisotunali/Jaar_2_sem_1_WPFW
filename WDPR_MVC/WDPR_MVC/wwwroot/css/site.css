@@ -13,9 +13,14 @@ a {
 }
 
 .btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+  color: #F19600;
+  background-color: #fff;
+  border-color: #F19600;
+}
+.btn-block {
+    color: #F19600;
+    background-color: #fff;
+    border-color: #F19600;
 }
 
 .nav-pills .nav-link.active,
@@ -85,6 +90,11 @@ body {
 .navbar-light .navbar-brand {
   color: #ffffff;
 }
+.bg {
+    background: url('/Pictures/image.png') no-repeat;
+    width: 100%;
+    height: 100vh;
+}
 
 h1,
 p {
@@ -129,4 +139,12 @@ a {
 .metadataUser .likes span {
   font-size: 1.5em;
   color: Var(--important3);
+}
+
+.liked svg {
+	fill: Var(--important3);
+}
+
+.meldingClosed {
+	border-color: red
 }

@@ -1,0 +1,47 @@
+@model Melding
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1 class="display-4 text-center">Bewerk Melding</h1>
+
+@Html.ValidationSummary()
+
+<form asp-action="Edit" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+	<input type="hidden" asp-for="Id" />
+    <div class="form-group">
+        <label asp-for="Titel" class="control-label">Titel van de melding</label>
+        <input asp-for="Titel" class="form-control" />
+        <span asp-validation-for="Titel" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Beschrijving" class="control-label">Beschrijf uw melding</label>
+        <textarea asp-for="Beschrijving" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Beschrijving" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label for="CategorieId">Categorie</label>
+        <select class="form-control" disabled asp-for="CategorieId" asp-items="@(new SelectList((IEnumerable<Categorie>)ViewBag.Categorieen, "Id", "Naam"))">
+            <option>Kies een Categorie</option>
+        </select>
+        <span asp-validation-for="CategorieId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Image">Upload foto</label>
+		<input disabled asp-for="Image" class="form-control-file" />
+        <span asp-validation-for="Image" class="text-danger"></span>
+    </div>
+    <p> Uw wijziging moet eerst worden goedgekeurd door een moderator!</p>
+    <div class="form-group">
+        <input type="submit" value="Bewerk" class="btn btn-primary" />
+    </div>
+</form>
+<div>
+    <a asp-action="Index">Terug naar overzicht</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

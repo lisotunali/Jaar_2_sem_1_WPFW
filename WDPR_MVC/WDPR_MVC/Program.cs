@@ -1,11 +1,14 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WDPR_MVC.Areas.Identity.Data;
 
 namespace WDPR_MVC
 {
@@ -13,7 +16,14 @@ namespace WDPR_MVC
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var host = CreateHostBuilder(args).Build();
+            using (var scope = host.Services.CreateScope())
+            {
+                var r = new RoleAndUserManager(scope.ServiceProvider.GetRequiredService < UserManager<ApplicationUser>>()
+                    , scope.ServiceProvider.GetRequiredService < RoleManager <IdentityRole>>());
+                r.CreateRoleManager();
+            }
+            host.Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

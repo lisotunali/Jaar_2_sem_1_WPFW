@@ -1,13 +1,26 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Pomelo.EntityFrameworkCore.MySql.Storage;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WDPR_MVC.Areas.Identity.Data;
+using WDPR_MVC.Data;
+using WDPR_MVC.Services;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using WDPR_MVC.Authorization;
+using GoogleReCaptcha.V3.Interface;
+using GoogleReCaptcha.V3;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace WDPR_MVC
 {
@@ -24,11 +37,61 @@ namespace WDPR_MVC
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            services.AddHttpClient<ICaptchaValidator, GoogleReCaptchaValidator>();
+
+            services.AddDbContext<MyContext>(options =>
+                    options.UseMySql(
+                        Configuration.GetConnectionString("MyContextConnection")).UseLazyLoadingProxies());
+
+            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = true;
+                options.Lockout = new Microsoft.AspNetCore.Identity.LockoutOptions()
+                {
+                    AllowedForNewUsers = true,
+                    DefaultLockoutTimeSpan = TimeSpan.FromSeconds(10),
+                    MaxFailedAccessAttempts = 8
+                };
+            })
+                .AddEntityFrameworkStores<MyContext>()
+                .AddRoles<IdentityRole>()
+                .AddRoleManager<RoleManager<IdentityRole>>()
+                .AddDefaultUI()
+                .AddDefaultTokenProviders();
+
+            // Set expiry time for email reset token
+            services.Configure<DataProtectionTokenProviderOptions>(options =>
+            {
+                options.TokenLifespan = TimeSpan.FromDays(2);
+            });
+
+            services.AddTransient<IEmailSender, EmailSender>();
+            services.Configure<AuthMessageSenderOptions>(Configuration.GetSection("SuperSecretMailInfo"));
+
+            services.AddRazorPages();
+
+            // Authorization handlers
+            services.AddScoped<IAuthorizationHandler, UserIsMeldingAuthorAuthorizationHandler>();
+            services.AddSingleton<IAuthorizationHandler, UserIsModeratorAuthorizationHandler>();
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CanViewProtectedPages", policy =>
+                        policy.RequireRole("Mod"));
+            });
+
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseForwardedHeaders();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -44,6 +107,8 @@ namespace WDPR_MVC
 
             app.UseRouting();
 
+            app.UseAuthentication();
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -51,6 +116,7 @@ namespace WDPR_MVC
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
             });
         }
     }
