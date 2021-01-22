@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WDPR_MVC.Data;
 
 namespace WDPR_MVC.Migrations
 {
     [DbContext(typeof(MyContext))]
-    partial class MyContextModelSnapshot : ModelSnapshot
+    [Migration("20210122111812_gerapporteerdemelding")]
+    partial class gerapporteerdemelding
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -167,9 +169,6 @@ namespace WDPR_MVC.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<bool>("FirstLog")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("tinyint(1)");
 
@@ -216,31 +215,6 @@ namespace WDPR_MVC.Migrations
                         .HasName("UserNameIndex");
 
                     b.ToTable("AspNetUsers");
-                });
-
-            modelBuilder.Entity("WDPR_MVC.Areas.Identity.Data.KnownIp", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Ip")
-                        .IsRequired()
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("KnownIps");
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.Adres", b =>
@@ -341,37 +315,19 @@ namespace WDPR_MVC.Migrations
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.GerapporteerdeMelding", b =>
-            {
+                {
                     b.Property<int>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
                     b.Property<int>("MeldingId")
-                    .HasColumnType("int");
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("MeldingId");
 
                     b.ToTable("GerapporteerdeMeldingen");
-            });
-          
-            modelBuilder.Entity("WDPR_MVC.Models.IPModel", b =>
-
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-                        
-                    b.Property<int>("FailCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("IP")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("IPAdressen");
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.Melding", b =>
@@ -507,15 +463,6 @@ namespace WDPR_MVC.Migrations
                     b.HasOne("WDPR_MVC.Models.Adres", "Adres")
                         .WithOne("User")
                         .HasForeignKey("WDPR_MVC.Areas.Identity.Data.ApplicationUser", "AdresId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("WDPR_MVC.Areas.Identity.Data.KnownIp", b =>
-                {
-                    b.HasOne("WDPR_MVC.Areas.Identity.Data.ApplicationUser", "User")
-                        .WithMany("KnownIps")
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

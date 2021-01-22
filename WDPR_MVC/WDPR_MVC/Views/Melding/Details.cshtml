@@ -10,6 +10,8 @@
 
 @inject UserManager<ApplicationUser> UserManager
 
+<div id="alert"></div>
+
 <article class="row">
 	<section class="col-lg-12 mb-3">
 		<div class="card mb-2 @closedClass">
@@ -65,7 +67,7 @@
 				<p class="text-body" style="white-space: pre-wrap;">@Model.Beschrijving</p>
 
 				@if (@Model.ImageName != null) {
-					<img src="/images/@Model.ImageName" loading="auto" class="img-fluid rounded mx-auto d-block" alt="Een foto dat bij de melding hoort">
+					<img src="/images/@Model.ImageName" class="img-fluid rounded mx-auto d-block" alt="Een foto dat bij de melding hoort">
 				}
 
 				<footer class="d-flex justify-content-end mt-2">
@@ -79,8 +81,8 @@
 							<small class="text-muted">Bewerk melding</small>
 						</a>
 					} else {
-						<a href="#" class="card-link">
-							<small class="text-muted">Report melding</small>
+						<a href="#" id="reportMelding" class="card-link">
+							<small class="text-danger">Report melding</small>
 						</a>
 					}
 				</footer>
@@ -106,11 +108,18 @@
 				</header>
 
 				<div class="card-body">
-					<p class="text-body mb-0">@comment.Inhoud</p>
+					<p class="text-body mb-0" style="white-space: pre-wrap;">@comment.Inhoud</p>
 
-					<footer>
-						<a href="#" class="card-link float-right mt-2"><small class="text-muted">Report reactie</small></a>
+					<footer class="d-flex justify-content-end mt-2">
+						@if(User.IsInRole("Mod")) {
+							<a asp-controller="Comments" asp-action="Edit" asp-route-id="@comment.Id" class="card-link">
+								<small class="text-muted">Bewerk</small>
+							</a>
+						}
 					</footer>
+					@*<footer>
+						<a href="#" class="card-link float-right mt-2"><small class="text-muted">Report reactie</small></a>
+					</footer>*@
 				</div>
 			</div>
 		</article>
@@ -141,6 +150,12 @@
     const like = document.getElementById("like");
     like.addEventListener("click", addLike);
     like.addEventListener("keydown", addLikeAccessibility);
+
+    const melding = document.getElementById("reportMelding");
+	if (melding != null) {
+		melding.addEventListener("click", reportMelding);
+		melding.addEventListener("keydown", reportMelding);
+	}
 
     let isSending = false;
 
@@ -182,5 +197,11 @@
         currentLikes.innerHTML = likes;
         isSending = false;
     }
+
+	async function reportMelding() {
+		const response = await fetch("/Melding/Report/@Model.Id");
+		const result = await response.text();
+		document.getElementById("alert").innerHTML = `<div class="alert alert-danger" role="alert">${result}</div>`;
+	}
 </script>
 }

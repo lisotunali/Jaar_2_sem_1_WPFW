@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WDPR_MVC.Areas.Identity.Data;
+using WDPR_MVC.Services;
 
 namespace WDPR_MVC
 {
@@ -31,6 +32,11 @@ namespace WDPR_MVC
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+            .ConfigureServices(services =>
+            {
+                services.AddHostedService<SluitOudeMeldingen>();
+            });
     }
+
 }
