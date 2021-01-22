@@ -13,7 +13,8 @@ namespace WDPR_MVC.Data
     public class MyContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<Melding> Meldingen { get; set; }
-        public DbSet<BewerkteMelding> BewerkteMeldingen { get; set; }
+        public DbSet<BewerkteMelding> BewerkteMeldingen {get; set;}
+        public DbSet<GerapporteerdeMelding> GerapporteerdeMeldingen { get; set; }
         public DbSet<Categorie> Categorieen { get; set; }
         public DbSet<Adres> Adres { get; set; }
         public DbSet<IPModel> IPAdressen { get; set; }
