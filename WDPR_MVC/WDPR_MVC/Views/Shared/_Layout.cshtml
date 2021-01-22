@@ -17,8 +17,8 @@
     <header>
         <!--navbar, toggle knop krijg je alleen op kleine schermen zoals telefoons te zien.-->
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-custom border-bottom box-shadow mb-3">
-            <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Buurtje</a> @*TODO: Hier nog een logo maken*@
+            <a class="sr-only sr-only-focusable skipcontent position-absolute" href="#content">Ga naar inhoud</a>
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Buurtje!</a> @*TODO: Hier nog een logo maken*@
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -62,7 +62,7 @@
 
         <footer class="border-top footer text-muted">
             <div class="container">
-                &copy; 2020 - Buurtje - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                &copy; 2021 - Buurtje - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
             </div>
         </footer>
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
