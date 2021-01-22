@@ -394,7 +394,6 @@ namespace WDPR_MVC.Controllers
 
             return melding.Likes.Count();
         }
-
         public async Task<IActionResult> ToggleSluitMelding(int id)
         {
             try
