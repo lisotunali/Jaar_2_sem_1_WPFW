@@ -267,14 +267,22 @@ namespace WDPR_MVC.Controllers
         }
 
         // Writes image to disk and generates a random file name for safety
-        // TODO: validation etc
         private async Task<string> UploadImageAsync(IFormFile file)
         {
             if (file != null && file.Length > 0)
             {
                 // Guid should be unique enough for us.
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot/images", fileName);
+
+                string directory = @"wwwroot/images";
+
+                // If folder doesn't exist create it.
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), directory, fileName);
 
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {

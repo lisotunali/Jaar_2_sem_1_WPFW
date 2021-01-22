@@ -17,6 +17,8 @@ namespace WDPR_MVC.Data
         public DbSet<GerapporteerdeMelding> GerapporteerdeMeldingen { get; set; }
         public DbSet<Categorie> Categorieen { get; set; }
         public DbSet<Adres> Adres { get; set; }
+        public DbSet<IPModel> IPAdressen { get; set; }
+        public DbSet<KnownIp> KnownIps { get; set; }
 
         public MyContext(DbContextOptions<MyContext> options)
             : base(options)
@@ -50,6 +52,13 @@ namespace WDPR_MVC.Data
             //Composite key
             builder.Entity<MeldingLike>()
                 .HasKey(ml => new { ml.MeldingId, ml.UserId });
+
+            // KnownIpStatus
+            builder.Entity<KnownIp>()
+                .Property(i => i.Status)
+                .HasConversion(
+                        i => i.ToString(),
+                        i => (KnownIpStatus)Enum.Parse(typeof(KnownIpStatus), i));
         }
 
         public DbSet<WDPR_MVC.Models.Comment> Comment { get; set; }

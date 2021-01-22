@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WDPR_MVC.Data;
 
 namespace WDPR_MVC.Migrations
 {
     [DbContext(typeof(MyContext))]
-    partial class MyContextModelSnapshot : ModelSnapshot
+    [Migration("20210120023426_AddKnownIpsDbSet")]
+    partial class AddKnownIpsDbSet
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -221,6 +223,9 @@ namespace WDPR_MVC.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
                     b.Property<string>("Ip")
                         .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
@@ -229,13 +234,9 @@ namespace WDPR_MVC.Migrations
                         .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("KnownIps");
                 });
@@ -337,29 +338,12 @@ namespace WDPR_MVC.Migrations
                     b.ToTable("Comment");
                 });
 
-            modelBuilder.Entity("WDPR_MVC.Models.GerapporteerdeMelding", b =>
-            {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-                        
-                    b.Property<int>("MeldingId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MeldingId");
-
-                    b.ToTable("GerapporteerdeMeldingen");
-            }
-          
             modelBuilder.Entity("WDPR_MVC.Models.IPModel", b =>
-
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-                        
+
                     b.Property<int>("FailCount")
                         .HasColumnType("int");
 
@@ -510,11 +494,9 @@ namespace WDPR_MVC.Migrations
 
             modelBuilder.Entity("WDPR_MVC.Areas.Identity.Data.KnownIp", b =>
                 {
-                    b.HasOne("WDPR_MVC.Areas.Identity.Data.ApplicationUser", "User")
+                    b.HasOne("WDPR_MVC.Areas.Identity.Data.ApplicationUser", null)
                         .WithMany("KnownIps")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ApplicationUserId");
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.BewerkteMelding", b =>
@@ -536,15 +518,6 @@ namespace WDPR_MVC.Migrations
 
                     b.HasOne("WDPR_MVC.Models.Melding", "Melding")
                         .WithMany("Comments")
-                        .HasForeignKey("MeldingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("WDPR_MVC.Models.GerapporteerdeMelding", b =>
-                {
-                    b.HasOne("WDPR_MVC.Models.Melding", "Melding")
-                        .WithMany()
                         .HasForeignKey("MeldingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

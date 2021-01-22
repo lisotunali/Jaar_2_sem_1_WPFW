@@ -1,10 +1,24 @@
 ﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
 for details on configuring this project to bundle and minify static web assets. */
 
+
+/* Belangrijke kleuren ofzo */
+:root {
+    --groen: #318379;
+    --secundair: #25645d;
+    --important3: #d43900;
+    --background: #F9FBFF;
+}
+
 a.navbar-brand {
   white-space: normal;
   text-align: center;
   word-break: break-all;
+}
+
+.skipcontent {
+    color: white;
+    background-color: black;
 }
 
 /* Provide sufficient contrast against white background */
@@ -13,9 +27,9 @@ a {
 }
 
 .btn-primary {
-  color: #F19600;
-  background-color: #fff;
-  border-color: #F19600;
+    color: var(--important3);
+    background-color: #fff;
+    border-color: var(--important3);
 }
 .btn-block {
     color: #F19600;
@@ -33,8 +47,13 @@ a {
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
+
+    html body {
+        background-color: var(--background);
+    }
+
 @media (min-width: 768px) {
   html {
     font-size: 16px;
@@ -76,15 +95,8 @@ body {
   line-height: 60px; /* Vertically center the text there */
 }
 
-/* Belangrijke kleuren ofzo */
-:root {
-  --important1: #4ebdae;
-  --important2: #f19600;
-  --important3: #c63319;
-}
-
 .bg-custom {
-  background-color: var(--important1);
+  background-color: var(--groen);
 }
 
 .navbar-light .navbar-brand {
@@ -103,10 +115,10 @@ p {
 
 h4 {
     font-size: 24px;
-    color: Var(--important2);
+    color: Var(--secundair);
     padding: 10px 0px 10px 0px;
-    border-top: solid 1px var(--important2);
-    border-bottom: solid 1px var(--important2);
+    border-top: solid 1px var(--secundair);
+    border-bottom: solid 1px var(--secundair);
 }
 
 .home-content {
@@ -115,11 +127,11 @@ h4 {
 
 
 a {
-  color: Var(--important2);
+  color: Var(--secundair);
 }
 
 .card-title {
-  color: Var(--important1);
+  color: Var(--groen);
 }
 
 .card-text {
