@@ -338,11 +338,11 @@ namespace WDPR_MVC.Migrations
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.GerapporteerdeMelding", b =>
-                {
+            {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
+                        
                     b.Property<int>("MeldingId")
                         .HasColumnType("int");
 
@@ -351,14 +351,17 @@ namespace WDPR_MVC.Migrations
                     b.HasIndex("MeldingId");
 
                     b.ToTable("GerapporteerdeMeldingen");
-                });
-
+            }
+          
             modelBuilder.Entity("WDPR_MVC.Models.IPModel", b =>
+
+            modelBuilder.Entity("WDPR_MVC.Models.GerapporteerdeMelding", b =>
+>>>>>>>>> Temporary merge branch 2
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        
 
+<<<<<<<<< Temporary merge branch 1
                     b.Property<int>("FailCount")
                         .HasColumnType("int");
 
