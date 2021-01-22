@@ -15,6 +15,8 @@ namespace WDPR_MVC.Areas.Identity.Data
         public virtual Adres Adres { get; set; }
         public int AdresId { get; set; }
 
+        public bool FirstLog { get; set; }
+
         // All known ip's by this user
         public virtual List<KnownIp> KnownIps { get; set; }
     }
