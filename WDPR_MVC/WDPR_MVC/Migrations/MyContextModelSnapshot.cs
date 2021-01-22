@@ -340,18 +340,18 @@ namespace WDPR_MVC.Migrations
             modelBuilder.Entity("WDPR_MVC.Models.GerapporteerdeMelding", b =>
             {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-                        
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
                     b.Property<int>("MeldingId")
-                        .HasColumnType("int");
+                    .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("MeldingId");
 
                     b.ToTable("GerapporteerdeMeldingen");
-            }
+            });
           
             modelBuilder.Entity("WDPR_MVC.Models.IPModel", b =>
 
