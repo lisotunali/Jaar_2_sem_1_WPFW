@@ -72,6 +72,7 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
 
             [Display(Name = "Remember me?")]
             public bool RememberMe { get; set; }
+
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -166,7 +167,6 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: true);
-
                 if (result.Succeeded)
                 {
                     if (ip != null)
@@ -174,10 +174,21 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                         _context.IPAdressen.Remove(ip);
                         await _context.SaveChangesAsync();
                     }
-
                     _logger.LogInformation("User logged in.");
-                    await wait;
-                    return LocalRedirect(returnUrl);
+                    
+                    if (!user.FirstLog)
+                    {
+                        user.FirstLog = true;
+                        await _context.SaveChangesAsync();
+                        await wait;
+                        return RedirectToAction("Uitleg", "Home");  
+                    }
+                    else 
+                    {
+                        await wait;
+                        return LocalRedirect(returnUrl);
+                    }
+
                 }
 
                 if (result.RequiresTwoFactor)
