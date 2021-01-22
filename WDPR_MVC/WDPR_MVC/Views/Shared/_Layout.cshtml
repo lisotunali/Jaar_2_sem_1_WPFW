@@ -42,7 +42,13 @@
                         @if (User.IsInRole("Mod"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-light" asp-area="" asp-controller="BewerkteMeldings" asp-action="Index">Bewerkte Meldingen</a>
+                                <a class="nav-link text-light" asp-area="" asp-controller="BewerkteMeldings" asp-action="Index">Bewerkt</a>
+                            </li>
+                        }
+                        @if (User.IsInRole("Mod"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-area="" asp-controller="GerapporteerdeMeldings" asp-action="Index">Gerapporteerd</a>
                             </li>
                         }
                     </ul>

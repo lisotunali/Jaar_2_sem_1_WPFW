@@ -440,7 +440,8 @@ namespace WDPR_MVC.Controllers
 
             // If not add..
             melding.Reports.Add(new Report { Melding = melding, AuteurReportId = userId});
-            _context.SaveChanges();
+            await _context.GerapporteerdeMeldingen.AddAsync(new GerapporteerdeMelding { Melding = melding });
+            await _context.SaveChangesAsync();
 
             return Ok("De melding is gerapporteerd aan het moderatorteam en zij zullen dit in behandeling nemen.");
         }
