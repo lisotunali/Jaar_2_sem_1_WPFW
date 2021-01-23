@@ -22,39 +22,11 @@ namespace WDPR_MVC_TESTS
 {
     public class MeldingTest : BaseTest
     {
-        MyContext db;
-        UserStore<ApplicationUser> userstore;
-        RoleStore<IdentityRole> rolestore;
-        UserManager<ApplicationUser> _um;
-        RoleManager<IdentityRole> _rm;
-        MeldingController _mc;
-        Mock<IAuthorizationService> _as;
-
 
         public MeldingTest()
         {
-            CleanContext();
         }
 
-        public void CleanContext()
-        {
-            db = GetInMemoryDBMetData();
-            userstore = new UserStore<ApplicationUser>(db);
-            rolestore = new RoleStore<IdentityRole>(db);
-            _um = MockHelpers.TestUserManager<ApplicationUser>(userstore);
-            _rm = MockHelpers.TestRoleManager<IdentityRole>(rolestore);
-            _as = new Mock<IAuthorizationService>();
-            _mc = new MeldingController(db, _um, _rm, _as.Object);
-            ClaimsPrincipal user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, "1234" )
-            }, authenticationType: "Basic"));
-
-            _mc.ControllerContext = new ControllerContext()
-            {
-                HttpContext = new DefaultHttpContext() { User = user }
-            };
-        }
 
         [Fact]
         public void TestMeldingModel()
