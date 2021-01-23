@@ -10,7 +10,7 @@ for details on configuring this project to bundle and minify static web assets. 
     --background: #F9FBFF;
 }
 
-a. bar-brand {
+a.bar-brand {
   white-space: normal;
   text-align: center;
   word-break: break-all;
