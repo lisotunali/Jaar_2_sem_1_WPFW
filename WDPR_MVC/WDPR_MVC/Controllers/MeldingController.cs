@@ -149,7 +149,10 @@ namespace WDPR_MVC.Controllers
         {
             // Wilt de model niet als valid zetten zonder dit.
             ModelState.Remove("AuteurId");
-
+            if(_context.Meldingen.Where(m => m.Titel == melding.Titel).Count() != 0)
+            {
+                ModelState.AddModelError("Titel", "Er bestaat al een melding met deze titel!");
+            }
             if (ModelState.IsValid)
             {
                 melding.Auteur = await _um.GetUserAsync(User);
