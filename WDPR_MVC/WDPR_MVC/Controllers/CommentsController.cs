@@ -23,12 +23,6 @@ namespace WDPR_MVC.Controllers
             _um = um;
         }
 
-        // GET: Comments
-        public async Task<IActionResult> Index()
-        {
-            var myContext = _context.Comment.Include(c => c.AuteurComment).Include(c => c.Melding);
-            return View(await myContext.ToListAsync());
-        }
 
         // GET: Comments/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -68,11 +62,14 @@ namespace WDPR_MVC.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(comment);
+                var mineen = _context.Meldingen.Find(comment.MeldingId);
+                mineen.KeerBekeken-= 1;
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", "Melding", new { id = comment.MeldingId } );
             }
             ViewData["AuteurCommentId"] = new SelectList(_context.Users, "Id", "Id", comment.AuteurCommentId);
             ViewData["MeldingId"] = new SelectList(_context.Meldingen, "Id", "AuteurId", comment.MeldingId);
+            
             return View(comment);
         }
 
@@ -126,7 +123,7 @@ namespace WDPR_MVC.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", "Melding", new { id = comment.MeldingId });
             }
             ViewData["AuteurCommentId"] = new SelectList(_context.Users, "Id", "Id", comment.AuteurCommentId);
             ViewData["MeldingId"] = new SelectList(_context.Meldingen, "Id", "AuteurId", comment.MeldingId);
@@ -161,7 +158,7 @@ namespace WDPR_MVC.Controllers
             var comment = await _context.Comment.FindAsync(id);
             _context.Comment.Remove(comment);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Details", "Melding", new { id = comment.MeldingId });
         }
 
         private bool CommentExists(int id)

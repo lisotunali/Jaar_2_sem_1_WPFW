@@ -67,7 +67,7 @@
 				<p class="text-body" style="white-space: pre-wrap;">@Model.Beschrijving</p>
 
 				@if (@Model.ImageName != null) {
-					<img src="/images/@Model.ImageName" loading="auto" class="img-fluid rounded mx-auto d-block" alt="Een foto dat bij de melding hoort">
+					<img src="/images/@Model.ImageName" class="img-fluid rounded mx-auto d-block" alt="Een foto dat bij de melding hoort">
 				}
 
 				<footer class="d-flex justify-content-end mt-2">
@@ -111,12 +111,12 @@
 					<p class="text-body mb-0" style="white-space: pre-wrap;">@comment.Inhoud</p>
 
 					<footer class="d-flex justify-content-end mt-2">
-						@if((await AuthorizationService.AuthorizeAsync(User, Model, MeldingOperations.Update)).Succeeded) {
+						@if(User.IsInRole("Mod")) {
 							<a asp-controller="Comments" asp-action="Edit" asp-route-id="@comment.Id" class="card-link">
 								<small class="text-muted">Bewerk</small>
 							</a>
 						}
-
+					</footer>
 					@*<footer>
 						<a href="#" class="card-link float-right mt-2"><small class="text-muted">Report reactie</small></a>
 					</footer>*@
