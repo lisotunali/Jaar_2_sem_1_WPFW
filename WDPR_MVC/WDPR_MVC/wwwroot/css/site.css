@@ -4,13 +4,13 @@ for details on configuring this project to bundle and minify static web assets. 
 
 /* Belangrijke kleuren ofzo */
 :root {
-    --groen: #318379;
+    --groen: #25625B;
     --secundair: #25645d;
     --important3: #d43900;
     --background: #F9FBFF;
 }
 
-a.navbar-brand {
+a. bar-brand {
   white-space: normal;
   text-align: center;
   word-break: break-all;
@@ -39,7 +39,7 @@ a {
 
 .nav-pills .nav-link.active,
 .nav-pills .show > .nav-link {
-  color: #fff;
+  color: #ffc47c;
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
