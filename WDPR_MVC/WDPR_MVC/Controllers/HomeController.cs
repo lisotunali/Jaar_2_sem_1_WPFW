@@ -42,6 +42,10 @@ namespace WDPR_MVC.Controllers
             return View();
         }
 
+        public IActionResult Uitleg()
+        {
+            return View();
+        }
         public IActionResult Login()
         {
             return View();

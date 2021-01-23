@@ -1,0 +1,59 @@
+﻿@model IEnumerable<WDPR_MVC.Models.Comment>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Melding)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AuteurComment)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Inhoud)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DatumAangemaakt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AantalLikes)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Melding.AuteurId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AuteurComment.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Inhoud)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DatumAangemaakt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AantalLikes)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

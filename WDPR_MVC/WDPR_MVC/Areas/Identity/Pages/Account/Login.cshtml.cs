@@ -72,6 +72,7 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
 
             [Display(Name = "Remember me?")]
             public bool RememberMe { get; set; }
+
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -98,6 +99,7 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
+            var wait = Task.Delay(1420);
             returnUrl = returnUrl ?? Url.Content("~/");
             string recaptchaResponse = this.Request.Form["g-recaptcha-response"];
 
@@ -165,7 +167,6 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: true);
-
                 if (result.Succeeded)
                 {
                     if (ip != null)
@@ -173,18 +174,32 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                         _context.IPAdressen.Remove(ip);
                         await _context.SaveChangesAsync();
                     }
-
                     _logger.LogInformation("User logged in.");
-                    return LocalRedirect(returnUrl);
+                    
+                    if (!user.FirstLog)
+                    {
+                        user.FirstLog = true;
+                        await _context.SaveChangesAsync();
+                        await wait;
+                        return RedirectToAction("Uitleg", "Home");  
+                    }
+                    else 
+                    {
+                        await wait;
+                        return LocalRedirect(returnUrl);
+                    }
+
                 }
 
                 if (result.RequiresTwoFactor)
                 {
+                    await wait;
                     return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
                 }
                 if (result.IsLockedOut)
                 {
                     _logger.LogWarning("User account locked out.");
+                    await wait;
                     return RedirectToPage("./Lockout");
                 }
                 else
@@ -208,11 +223,13 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                     if (ip.FailCount >= 2) ViewData["ShowCap"] = true;
 
                     ModelState.AddModelError(string.Empty, errorMessage);
+                    await wait;
                     return Page();
                 }
             }
 
             // If we got this far, something failed, redisplay form
+            await wait;
             return Page();
         }
 

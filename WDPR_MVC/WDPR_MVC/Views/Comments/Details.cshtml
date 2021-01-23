@@ -1,0 +1,48 @@
+﻿@model WDPR_MVC.Models.Comment
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Comment</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Melding)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Melding.AuteurId)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.AuteurComment)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.AuteurComment.Id)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Inhoud)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Inhoud)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.DatumAangemaakt)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.DatumAangemaakt)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.AantalLikes)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.AantalLikes)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
