@@ -347,6 +347,7 @@ namespace WDPR_MVC.Controllers
             if (!melding.IsClosed)
             {
                 _context.Add(new Comment { Inhoud = comment, MeldingId = id, AuteurComment = await _um.GetUserAsync(User), DatumAangemaakt = DateTime.Now });
+                melding.KeerBekeken -= 1;
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Details), new { id = id });
