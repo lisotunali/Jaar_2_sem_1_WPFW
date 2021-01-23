@@ -51,7 +51,7 @@ namespace WDPR_MVC_TESTS
                 Categorie = db.Categorieen.First(),
                 DatumAangemaakt = tijd,
                 Titel = "testtitel"
-            }); 
+            });
             Assert.Equal(0, db.Meldingen.Count());
             db.SaveChanges();
             Assert.Equal(1, db.Meldingen.Count());
@@ -74,7 +74,59 @@ namespace WDPR_MVC_TESTS
             Assert.Equal(0, db.Meldingen.Count());
             await _mc.Create(melding);
             Assert.Equal(1, db.Meldingen.Count());
-
+        }
+        [Fact]
+        public async void TestMeldingLike()
+        {
+            CleanMeldingController();
+            DateTime tijd = DateTime.Now;
+            Melding melding = new Melding
+            {
+                Beschrijving = "testLike",
+                Categorie = db.Categorieen.First(),
+                DatumAangemaakt = tijd,
+                Titel = "testtitel"
+            };
+            SetClaimsPrincipal(_mc, "1234");
+            await _mc.Create(melding);
+            Assert.Equal(0, melding.Likes.Count);
+            await _mc.AddLike(melding.Id);
+            Assert.Equal(1, melding.Likes.Count);
+        }
+        [Fact]
+        public async void TestMeldingComment()
+        {
+            CleanMeldingController();
+            DateTime tijd = DateTime.Now;
+            Melding melding = new Melding
+            {
+                Beschrijving = "testLike",
+                Categorie = db.Categorieen.First(),
+                DatumAangemaakt = tijd,
+                Titel = "testtitel"
+            };
+            SetClaimsPrincipal(_mc, "1234");
+            await _mc.Create(melding);
+            Assert.Equal(0, (int)melding.Comments.Count());
+            await _mc.AddComment(melding.Id,"Dit is een testcomment");
+            Assert.Equal(1, (int)melding.Comments.Count());
+        }
+        [Fact]
+        public async void TestMeldingRapporteer()
+        {
+            CleanMeldingController();
+            DateTime tijd = DateTime.Now;
+            Melding melding = new Melding
+            {
+                Beschrijving = "testLike",
+                Categorie = db.Categorieen.First(),
+                DatumAangemaakt = tijd,
+                Titel = "testtitel"
+            };
+            SetClaimsPrincipal(_mc, "1234");
+            await _mc.Create(melding);
+            await _mc.Report(melding.Id);
+            Assert.Equal(1,(int)melding.Reports.Count());
         }
     }
 }
