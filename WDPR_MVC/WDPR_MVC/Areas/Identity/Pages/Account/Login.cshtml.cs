@@ -19,6 +19,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
 using WDPR_MVC.Models;
+using Microsoft.AspNetCore.Http;
+using UAParser;
+using System.Net.Http;
+using Newtonsoft.Json.Linq;
 
 namespace WDPR_MVC.Areas.Identity.Pages.Account
 {
@@ -119,50 +123,50 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                //Stuur een emailtje naar een gebruiker als deze inlogt van een ongebruikelijke device of locatie
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == Input.Email);
-                if (user != null)
-                {
-                    // Check if current user ip is known
-                    var known = user.KnownIps.FirstOrDefault(i => i.Ip == currentIp);
 
-                    // FIXME: Wat gaan we doen als deny?
-                    if (known?.Status == KnownIpStatus.Deny)
-                    {
-                        ModelState.AddModelError(string.Empty, "Not allowed to login with this ip");
-                        return Page();
-                    }
+                //if (user != null)
+                //{
+                // // Check if current user ip is known
+                // var known = user.KnownIps.FirstOrDefault(i => i.Ip == currentIp);
 
-                    // If unknown send another mail to confirm status?
-                    if (known?.Status == KnownIpStatus.Unknown)
-                    {
-                        await sendEmail(user, known, returnUrl);
-                    }
+                // // FIXME: Wat gaan we doen als deny?
+                // if (known?.Status == KnownIpStatus.Deny)
+                // {
+                //     ModelState.AddModelError(string.Empty, "Not allowed to login with this ip");
+                //     return Page();
+                // }
 
-                    // User has ip's and this one is not found send email to confirm ip
-                    if (user.KnownIps.Any() && known == null)
-                    {
-                        var newKnownIp = new KnownIp
-                        {
-                            Ip = currentIp,
-                            Status = KnownIpStatus.Unknown
-                        };
+                // // If unknown send another mail to confirm status?
+                // if (known?.Status == KnownIpStatus.Unknown)
+                // {
+                //     await sendEmail(user, known, returnUrl);
+                // }
 
-                        user.KnownIps.Add(newKnownIp);
-                        await _context.SaveChangesAsync();
-                        await sendEmail(user, newKnownIp, returnUrl);
-                    }
+                // // User has ip's and this one is not found send email to confirm ip
+                // if (user.KnownIps.Any() && known == null)
+                // {
+                //     var newKnownIp = new KnownIp
+                //     {
+                //         Ip = currentIp,
+                //         Status = KnownIpStatus.Unknown
+                //     };
 
-                    // FIXME: Doesn't have any known ip's should we trust the first one?
-                    if (!user.KnownIps.Any())
-                    {
-                        user.KnownIps.Add(new KnownIp
-                        {
-                            Ip = currentIp,
-                            Status = KnownIpStatus.Allowed
-                        });
-                    }
-                }
+                //     user.KnownIps.Add(newKnownIp);
+                //     await _context.SaveChangesAsync();
+                //     await sendEmail(user, newKnownIp, returnUrl);
+                // }
+
+                // // FIXME: Doesn't have any known ip's should we trust the first one?
+                // if (!user.KnownIps.Any())
+                // {
+                //     user.KnownIps.Add(new KnownIp
+                //     {
+                //         Ip = currentIp,
+                //         Status = KnownIpStatus.Allowed
+                //     });
+                // }
+                //}
 
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
@@ -175,15 +179,17 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
                         await _context.SaveChangesAsync();
                     }
                     _logger.LogInformation("User logged in.");
-                    
+
+                    await checkDeviceAsync(user);
+
                     if (!user.FirstLog)
                     {
                         user.FirstLog = true;
                         await _context.SaveChangesAsync();
                         await wait;
-                        return RedirectToAction("Uitleg", "Home");  
+                        return RedirectToAction("Uitleg", "Home");
                     }
-                    else 
+                    else
                     {
                         await wait;
                         return LocalRedirect(returnUrl);
@@ -240,34 +246,97 @@ namespace WDPR_MVC.Areas.Identity.Pages.Account
             if (Request.Headers.ContainsKey("X-Forwarded-For"))
             {
                 currentIp = Request.Headers["X-Forwarded-For"].FirstOrDefault();
+
+                int index = currentIp.IndexOf(':');
+                if (index > 0)
+                    currentIp = currentIp.Remove(index);
             }
 
             return currentIp;
         }
 
-        private async Task sendEmail(ApplicationUser user, KnownIp knownIp, string returnUrl)
+        private string getDeviceInfo()
         {
-            var code = await _userManager.GenerateUserTokenAsync(user, "Default", "ip-validation" + knownIp.Ip);
+            var useragent = HttpContext.Request.Headers["User-Agent"];
+            var c = Parser.GetDefault().Parse(useragent);
+            return c.UA.ToString() + " on " + c.OS.ToString();
+        }
 
-            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            var callbackUrlAccept = Url.Page(
-                "/Account/ConfirmIp",
-                pageHandler: null,
-                values: new { area = "Identity", userId = user.Id, code = code, about = knownIp.Id, allow = true, returnUrl = returnUrl },
-                protocol: Request.Scheme);
+        // Stuur een emailtje naar een gebruiker als deze inlogt van een
+        // ongebruikelijke device of locatie
+        private async Task checkDeviceAsync(ApplicationUser user)
+        {
+            var device = new Data.Device
+            {
+                User = user,
+                Ip = getCurrentIp(),
+                UserAgent = getDeviceInfo(),
+                Location = await getIpLocationCityAsync(),
+            };
 
-            var callbackUrlDeny = Url.Page(
-                "/Account/ConfirmIp",
-                pageHandler: null,
-                values: new { area = "Identity", userId = user.Id, code = code, about = knownIp.Id, allow = false, returnUrl = returnUrl },
-                protocol: Request.Scheme);
+            // Check if user has this device
+            var foundDevice = user.Devices
+                .Where(d => d.UserAgent == device.UserAgent)
+                .Where(d => d.Location == device.Location)
+                .FirstOrDefault();
 
-            // Outlook accepteert dit niet :( dus dan maar alles aan elkaar
-            //await _emailSender.SendEmailAsync(user.Email, "We noticed a new sign in to your Buurtje account",
-            //    $"Hello {user.UserName},<br><br>We detected a new Ip login attempt on {DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss")} {TimeZoneInfo.Local.DisplayName}.<br><br>please confirm that this was you by <a href='{HtmlEncoder.Default.Encode(callbackUrlAccept)}'>allowing</a> or <a href='{HtmlEncoder.Default.Encode(callbackUrlDeny)}'>denying</a> access to this IP address.<br>(Only valid for 2 days).");
+            // Send email if we detected a new device and don't send if
+            // this is the first device
+            if (foundDevice == null && user.Devices.Any())
+            {
+                await sendNewDeviceEmailAsync(user, device);
+                _logger.LogInformation($"Sending new device email for {user.Id}");
+            }
 
-            await _emailSender.SendEmailAsync(user.Email, "We noticed a new sign in to your Buurtje account",
-                $"Hello {user.UserName}, We detected a new Ip login attempt on {DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss")} {TimeZoneInfo.Local.DisplayName}. Please confirm that this was you by <a href='{HtmlEncoder.Default.Encode(callbackUrlAccept)}'>allowing</a> or <a href='{HtmlEncoder.Default.Encode(callbackUrlDeny)}'>denying</a> access to this IP address. (Only valid for 2 days).");
+            // Add new device to user
+            if (foundDevice == null)
+            {
+                user.Devices.Add(device);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private async Task<string> getIpLocationCityAsync()
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                var ipInfo = await client.GetStringAsync("http://ip-api.com/json/" + getCurrentIp());
+
+                // TODO: Maybe use more ip info?
+                var parsed = JObject.Parse(ipInfo);
+                return parsed["city"]?.ToString() ?? "Unknown location";
+            }
+        }
+
+        //private async Task sendEmail(ApplicationUser user, KnownIp knownIp, string returnUrl)
+        //{
+        //    var code = await _userManager.GenerateUserTokenAsync(user, "Default", "ip-validation" + knownIp.Ip);
+
+        //    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+        //    var callbackUrlAccept = Url.Page(
+        //        "/Account/ConfirmIp",
+        //        pageHandler: null,
+        //        values: new { area = "Identity", userId = user.Id, code = code, about = knownIp.Id, allow = true, returnUrl = returnUrl },
+        //        protocol: Request.Scheme);
+
+        //    var callbackUrlDeny = Url.Page(
+        //        "/Account/ConfirmIp",
+        //        pageHandler: null,
+        //        values: new { area = "Identity", userId = user.Id, code = code, about = knownIp.Id, allow = false, returnUrl = returnUrl },
+        //        protocol: Request.Scheme);
+
+        //    // Outlook accepteert dit niet :( dus dan maar alles aan elkaar
+        //    //await _emailSender.SendEmailAsync(user.Email, "We noticed a new sign in to your Buurtje account",
+        //    //    $"Hello {user.UserName},<br><br>We detected a new Ip login attempt on {DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss")} {TimeZoneInfo.Local.DisplayName}.<br><br>please confirm that this was you by <a href='{HtmlEncoder.Default.Encode(callbackUrlAccept)}'>allowing</a> or <a href='{HtmlEncoder.Default.Encode(callbackUrlDeny)}'>denying</a> access to this IP address.<br>(Only valid for 2 days).");
+
+        //    await _emailSender.SendEmailAsync(user.Email, "We noticed a new sign in to your Buurtje account",
+        //        $"Hello {user.UserName}, We detected a new Ip login attempt on {DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss")} {TimeZoneInfo.Local.DisplayName}. Please confirm that this was you by <a href='{HtmlEncoder.Default.Encode(callbackUrlAccept)}'>allowing</a> or <a href='{HtmlEncoder.Default.Encode(callbackUrlDeny)}'>denying</a> access to this IP address. (Only valid for 2 days).");
+        //}
+
+        private async Task sendNewDeviceEmailAsync(ApplicationUser user, Data.Device device)
+        {
+            await _emailSender.SendEmailAsync(user.Email, "We noticed a new device sign in to your Buurtje account",
+                $"Hello {user.UserName}, We detected a new login from an unkown device: {device.UserAgent} at location: {device.Location} on {DateTime.Now.ToString("dddd, dd MMMM yyyy HH:mm:ss")} {TimeZoneInfo.Local.DisplayName}. Please contact us if this was not you.");
         }
     }
 }

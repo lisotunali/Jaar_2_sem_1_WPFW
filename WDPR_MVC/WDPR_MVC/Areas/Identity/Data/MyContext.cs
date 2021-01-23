@@ -18,7 +18,7 @@ namespace WDPR_MVC.Data
         public DbSet<Categorie> Categorieen { get; set; }
         public DbSet<Adres> Adres { get; set; }
         public DbSet<IPModel> IPAdressen { get; set; }
-        public DbSet<KnownIp> KnownIps { get; set; }
+        public DbSet<Device> Devices { get; set; }
 
         public MyContext(DbContextOptions<MyContext> options)
             : base(options)
@@ -53,12 +53,12 @@ namespace WDPR_MVC.Data
             builder.Entity<MeldingLike>()
                 .HasKey(ml => new { ml.MeldingId, ml.UserId });
 
-            // KnownIpStatus
-            builder.Entity<KnownIp>()
-                .Property(i => i.Status)
-                .HasConversion(
-                        i => i.ToString(),
-                        i => (KnownIpStatus)Enum.Parse(typeof(KnownIpStatus), i));
+            //// KnownIpStatus
+            //builder.Entity<KnownIp>()
+            //    .Property(i => i.Status)
+            //    .HasConversion(
+            //            i => i.ToString(),
+            //            i => (KnownIpStatus)Enum.Parse(typeof(KnownIpStatus), i));
         }
 
         public DbSet<WDPR_MVC.Models.Comment> Comment { get; set; }
