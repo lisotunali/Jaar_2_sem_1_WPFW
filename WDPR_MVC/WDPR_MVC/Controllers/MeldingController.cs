@@ -61,7 +61,7 @@ namespace WDPR_MVC.Controllers
             return View(await PaginatedList<Melding>.CreateAsync(meldingen, page, 10));
         }
 
-        IQueryable<Melding> Search(IQueryable<Melding> meldingen, string search)
+        public IQueryable<Melding> Search(IQueryable<Melding> meldingen, string search)
         {
             if (search == null)
             {
@@ -74,7 +74,7 @@ namespace WDPR_MVC.Controllers
 
         // Er moet gesorteerd kunnen worden op aantal views, aantal likes, en
         // datum.
-        IQueryable<Melding> Sort(IQueryable<Melding> list, string sort, string sortOrder)
+        public IQueryable<Melding> Sort(IQueryable<Melding> list, string sort, string sortOrder)
         {
             return sort?.ToLower() switch
             {
@@ -149,7 +149,10 @@ namespace WDPR_MVC.Controllers
         {
             // Wilt de model niet als valid zetten zonder dit.
             ModelState.Remove("AuteurId");
-
+            if(_context.Meldingen.Where(m => m.Titel == melding.Titel).Count() != 0)
+            {
+                ModelState.AddModelError("Titel", "Er bestaat al een melding met deze titel!");
+            }
             if (ModelState.IsValid)
             {
                 melding.Auteur = await _um.GetUserAsync(User);
@@ -347,6 +350,7 @@ namespace WDPR_MVC.Controllers
             if (!melding.IsClosed)
             {
                 _context.Add(new Comment { Inhoud = comment, MeldingId = id, AuteurComment = await _um.GetUserAsync(User), DatumAangemaakt = DateTime.Now });
+                melding.KeerBekeken -= 1;
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Details), new { id = id });
@@ -394,7 +398,6 @@ namespace WDPR_MVC.Controllers
 
             return melding.Likes.Count();
         }
-
         public async Task<IActionResult> ToggleSluitMelding(int id)
         {
             try
@@ -428,6 +431,30 @@ namespace WDPR_MVC.Controllers
             }
 
             return RedirectToAction(nameof(Details), new { id = id });
+        }
+
+        public async Task<IActionResult> Report(int id)
+        {
+
+            if (!MeldingExists(id))
+            {
+                return NotFound();
+            }
+
+            var melding = _context.Meldingen.Find(id);
+            var userId = _um.GetUserId(User);
+
+            // Check if already exists
+            if (melding.Reports.Any(m => m.AuteurReportId == userId)) {
+                return Ok("U heeft deze melding reeds succesvol gerapporteerd! Bedankt voor uw geduld. :)");
+            }
+
+            // If not add..
+            melding.Reports.Add(new Report { Melding = melding, AuteurReportId = userId});
+            await _context.GerapporteerdeMeldingen.AddAsync(new GerapporteerdeMelding { Melding = melding });
+            await _context.SaveChangesAsync();
+
+            return Ok("De melding is gerapporteerd aan het moderatorteam en zij zullen dit in behandeling nemen.");
         }
 
         private bool MeldingExists(int id)

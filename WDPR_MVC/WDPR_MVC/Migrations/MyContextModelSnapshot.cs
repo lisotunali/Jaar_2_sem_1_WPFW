@@ -14,7 +14,7 @@ namespace WDPR_MVC.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.10")
+                .HasAnnotation("ProductVersion", "3.1.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -167,6 +167,9 @@ namespace WDPR_MVC.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<bool>("FirstLog")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("tinyint(1)");
 
@@ -215,7 +218,7 @@ namespace WDPR_MVC.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("WDPR_MVC.Areas.Identity.Data.KnownIp", b =>
+            modelBuilder.Entity("WDPR_MVC.Areas.Identity.Data.Device", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -225,7 +228,11 @@ namespace WDPR_MVC.Migrations
                         .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<string>("Status")
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("UserAgent")
                         .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
@@ -237,7 +244,7 @@ namespace WDPR_MVC.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("KnownIps");
+                    b.ToTable("Devices");
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.Adres", b =>
@@ -335,6 +342,22 @@ namespace WDPR_MVC.Migrations
                     b.HasIndex("MeldingId");
 
                     b.ToTable("Comment");
+                });
+
+            modelBuilder.Entity("WDPR_MVC.Models.GerapporteerdeMelding", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("MeldingId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MeldingId");
+
+                    b.ToTable("GerapporteerdeMeldingen");
                 });
 
             modelBuilder.Entity("WDPR_MVC.Models.IPModel", b =>
@@ -491,10 +514,10 @@ namespace WDPR_MVC.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("WDPR_MVC.Areas.Identity.Data.KnownIp", b =>
+            modelBuilder.Entity("WDPR_MVC.Areas.Identity.Data.Device", b =>
                 {
                     b.HasOne("WDPR_MVC.Areas.Identity.Data.ApplicationUser", "User")
-                        .WithMany("KnownIps")
+                        .WithMany("Devices")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -519,6 +542,15 @@ namespace WDPR_MVC.Migrations
 
                     b.HasOne("WDPR_MVC.Models.Melding", "Melding")
                         .WithMany("Comments")
+                        .HasForeignKey("MeldingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("WDPR_MVC.Models.GerapporteerdeMelding", b =>
+                {
+                    b.HasOne("WDPR_MVC.Models.Melding", "Melding")
+                        .WithMany()
                         .HasForeignKey("MeldingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

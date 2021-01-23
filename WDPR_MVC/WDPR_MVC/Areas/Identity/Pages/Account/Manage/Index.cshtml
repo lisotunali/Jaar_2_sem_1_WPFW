@@ -1,7 +1,8 @@
 ﻿@page
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 @model IndexModel
 @{
-    ViewData["Title"] = "Profile";
+    ViewData["Title"] = "Profiel";
     ViewData["ActivePage"] = ManageNavPages.Index;
 }
 
@@ -9,7 +10,7 @@
 <partial name="_StatusMessage" model="Model.StatusMessage" />
 <div class="row">
     <div class="col-md-6">
-        <form id="profile-form" method="post">
+        <form id="profile-form" class="address" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Username"></label>
@@ -22,30 +23,38 @@
             </div>
             <div class="form-group">
                 <label asp-for="Input.Adres.Straatnaam"></label>
-                <input asp-for="Input.Adres.Straatnaam" class="form-control" />
+                <input readonly="readonly" asp-for="Input.Adres.Straatnaam" class="form-control street" />
                 <span asp-validation-for="Input.Adres.Straatnaam" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Input.Adres.Huisnummer"></label>
-                <input asp-for="Input.Adres.Huisnummer" class="form-control" />
+                <input asp-for="Input.Adres.Huisnummer" class="form-control streetnumber" />
                 <span asp-validation-for="Input.Adres.Huisnummer" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Input.Adres.Toevoeging"></label>
-                <input asp-for="Input.Adres.Toevoeging" class="form-control" />
+                <input asp-for="Input.Adres.Toevoeging" class="form-control extension" />
                 <span asp-validation-for="Input.Adres.Toevoeging" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Input.Adres.Postcode"></label>
-                <input asp-for="Input.Adres.Postcode" class="form-control" />
+                <input asp-for="Input.Adres.Postcode" class="form-control postcode" />
                 <span asp-validation-for="Input.Adres.Postcode" class="text-danger"></span>
             </div>
 
-            <button id="update-profile-button" type="submit" class="btn btn-primary">Save</button>
+            <button id="update-profile-button" type="submit" class="btn btn-primary">Sla op</button>
         </form>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script type="text/javascript" src="~/js/autocomplete.js"></script>
+    <script type="text/javascript">
+        var pro6pp_auth_key = '@Configuration["pro6pp:AuthKey"]';
+        $(document).ready(function () {
+            $('.address').applyAutocomplete();
+        });
+    </script>
 }
