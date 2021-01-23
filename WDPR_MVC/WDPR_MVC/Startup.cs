@@ -18,6 +18,9 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using WDPR_MVC.Authorization;
+using GoogleReCaptcha.V3.Interface;
+using GoogleReCaptcha.V3;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace WDPR_MVC
 {
@@ -35,6 +38,8 @@ namespace WDPR_MVC
         {
             services.AddControllersWithViews();
 
+            services.AddHttpClient<ICaptchaValidator, GoogleReCaptchaValidator>();
+
             services.AddDbContext<MyContext>(options =>
                     options.UseMySql(
                         Configuration.GetConnectionString("MyContextConnection")).UseLazyLoadingProxies());
@@ -46,7 +51,7 @@ namespace WDPR_MVC
                 {
                     AllowedForNewUsers = true,
                     DefaultLockoutTimeSpan = TimeSpan.FromSeconds(10),
-                    MaxFailedAccessAttempts = 5
+                    MaxFailedAccessAttempts = 8
                 };
             })
                 .AddEntityFrameworkStores<MyContext>()
@@ -75,11 +80,18 @@ namespace WDPR_MVC
                 options.AddPolicy("CanViewProtectedPages", policy =>
                         policy.RequireRole("Mod"));
             });
+
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseForwardedHeaders();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

@@ -48,6 +48,7 @@ namespace WDPR_MVC.Controllers
             // De meldingen. Natuurlijk stuur je nooit anonymous meldingen mee.
             var meldingen = _context.Meldingen.Where(m => !m.IsAnonymous);
 
+
             // Zoek specifieke melding op titel of beschrijving
             meldingen = Search(meldingen, search);
 
@@ -70,7 +71,6 @@ namespace WDPR_MVC.Controllers
             return meldingen
                 .Where(m => m.Beschrijving.Contains(search) || m.Titel.Contains(search));
         }
-
 
         // Er moet gesorteerd kunnen worden op aantal views, aantal likes, en
         // datum.
@@ -350,6 +350,7 @@ namespace WDPR_MVC.Controllers
             if (!melding.IsClosed)
             {
                 _context.Add(new Comment { Inhoud = comment, MeldingId = id, AuteurComment = await _um.GetUserAsync(User), DatumAangemaakt = DateTime.Now });
+                melding.KeerBekeken -= 1;
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Details), new { id = id });
@@ -431,6 +432,30 @@ namespace WDPR_MVC.Controllers
             }
 
             return RedirectToAction(nameof(Details), new { id = id });
+        }
+
+        public async Task<IActionResult> Report(int id)
+        {
+
+            if (!MeldingExists(id))
+            {
+                return NotFound();
+            }
+
+            var melding = _context.Meldingen.Find(id);
+            var userId = _um.GetUserId(User);
+
+            // Check if already exists
+            if (melding.Reports.Any(m => m.AuteurReportId == userId)) {
+                return Ok("U heeft deze melding reeds succesvol gerapporteerd! Bedankt voor uw geduld. :)");
+            }
+
+            // If not add..
+            melding.Reports.Add(new Report { Melding = melding, AuteurReportId = userId});
+            await _context.GerapporteerdeMeldingen.AddAsync(new GerapporteerdeMelding { Melding = melding });
+            await _context.SaveChangesAsync();
+
+            return Ok("De melding is gerapporteerd aan het moderatorteam en zij zullen dit in behandeling nemen.");
         }
 
         private bool MeldingExists(int id)

@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 @using Microsoft.AspNetCore.Identity
 @using WDPR_MVC.Areas.Identity.Data
 
@@ -9,7 +9,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"]</title>
+    <title>@ViewData["Title"] - Buurtje</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
@@ -17,8 +17,8 @@
     <header>
         <!--navbar, toggle knop krijg je alleen op kleine schermen zoals telefoons te zien.-->
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-custom border-bottom box-shadow mb-3">
-            <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Buurtje</a> @*TODO: Hier nog een logo maken*@
+            <a class="sr-only sr-only-focusable skipcontent position-absolute" href="#content">Ga naar inhoud</a>
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Buurtje!</a> @*TODO: Hier nog een logo maken*@
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -35,6 +35,9 @@
                             <li class="nav-item">
                                 <a class="nav-link text-light" asp-area="" asp-controller="Melding" asp-action="Index">Melding</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Uitleg">Uitleg</a>
+                            </li>
                         }
                         <li class="nav-item">
                             <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
@@ -42,7 +45,13 @@
                         @if (User.IsInRole("Mod"))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-light" asp-area="" asp-controller="BewerkteMeldings" asp-action="Index">Bewerkte Meldingen</a>
+                                <a class="nav-link text-light" asp-area="" asp-controller="BewerkteMeldings" asp-action="Index">Bewerkt</a>
+                            </li>
+                        }
+                        @if (User.IsInRole("Mod"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-area="" asp-controller="GerapporteerdeMeldings" asp-action="Index">Gerapporteerd</a>
                             </li>
                         }
                     </ul>
@@ -59,7 +68,7 @@
 
         <footer class="border-top footer text-muted">
             <div class="container">
-                &copy; 2020 - Buurtje - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                &copy; 2021 - Buurtje - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
             </div>
         </footer>
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
