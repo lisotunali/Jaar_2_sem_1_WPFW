@@ -44,12 +44,12 @@
 <h5>Authenticatie app</h5>
 @if (!Model.HasAuthenticator)
 {
-    <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-default">Voeg authenticatie app toe</a>
+    <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-primary">Voeg authenticatie app toe</a>
 }
 else
 {
-    <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-default">Stel authenticatie app in</a>
-    <a id="reset-authenticator" asp-page="./ResetAuthenticator" class="btn btn-default">Herstel authenticatie app</a>
+    <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-primary">Stel authenticatie app in</a>
+    <a id="reset-authenticator" asp-page="./ResetAuthenticator" class="btn btn-primary">Herstel authenticatie app</a>
 }
 
 @section Scripts {
