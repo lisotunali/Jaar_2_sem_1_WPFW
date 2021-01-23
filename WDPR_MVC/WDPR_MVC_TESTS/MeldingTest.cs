@@ -20,18 +20,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WDPR_MVC_TESTS
 {
+
     public class MeldingTest : BaseTest
     {
+        // declaratie van meldingcontroller voor scope reasons
+        public MeldingController _mc;
 
         public MeldingTest()
         {
+        }
+
+        // maak een nieuwe clean controller gebaseerd op de mock objecten in basetest
+        private void CleanMeldingController()
+        {
+            CleanContext();
+            _mc = new MeldingController(db, _um, _rm, _as.Object);
         }
 
 
         [Fact]
         public void TestMeldingModel()
         {
-            CleanContext();
+            CleanMeldingController();
             var user = db.Users.First();
             DateTime tijd = DateTime.Now;
             db.Meldingen.Add(new WDPR_MVC.Models.Melding
@@ -51,7 +61,7 @@ namespace WDPR_MVC_TESTS
         [Fact]
         public async void TestMeldingCreate()
         {
-            CleanContext();
+            CleanMeldingController();
             DateTime tijd = DateTime.Now;
             Melding melding = new Melding
             {
@@ -60,7 +70,7 @@ namespace WDPR_MVC_TESTS
                 DatumAangemaakt = tijd,
                 Titel = "testtitel"
             };
-
+            SetClaimsPrincipal(_mc, "1234");
             Assert.Equal(0, db.Meldingen.Count());
             await _mc.Create(melding);
             Assert.Equal(1, db.Meldingen.Count());

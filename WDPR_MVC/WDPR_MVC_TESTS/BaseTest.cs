@@ -22,16 +22,19 @@ namespace WDPR_MVC_TESTS
 {
     public class BaseTest 
     {
+        // declaraties van de mocks van alle services die we gebruiken in de applicatie
+
         public MyContext db;
         public UserStore<ApplicationUser> userstore;
         public RoleStore<IdentityRole> rolestore;
         public UserManager<ApplicationUser> _um;
         public RoleManager<IdentityRole> _rm;
-        public MeldingController _mc;
         public Mock<IAuthorizationService> _as;
 
         private string databaseName; // zonder deze property kun je geen clean context maken.
 
+
+        //zet nieuwe, lege mock objecten in de declaraties
         public void CleanContext()
         {
             db = GetInMemoryDBMetData();
@@ -40,17 +43,23 @@ namespace WDPR_MVC_TESTS
             _um = MockHelpers.TestUserManager<ApplicationUser>(userstore);
             _rm = MockHelpers.TestRoleManager<IdentityRole>(rolestore);
             _as = new Mock<IAuthorizationService>();
-            _mc = new MeldingController(db, _um, _rm, _as.Object);
+        }
+
+        // met deze methode kunnen we een user naar keuze en zijn bijbehorende claims in "User" zetten en deze daarna gebruiken.
+        // hiermee kunnen we dus authorisatie testen maar ook simpelweg getUserAsync(User) gebruiken. 
+        public void SetClaimsPrincipal(Controller controller, string userId)
+        {
             ClaimsPrincipal user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
             {
-                new Claim(ClaimTypes.NameIdentifier, "1234" )
+                new Claim(ClaimTypes.NameIdentifier, userId )
             }, authenticationType: "Basic"));
 
-            _mc.ControllerContext = new ControllerContext()
+            controller.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext() { User = user }
             };
         }
+
         public MyContext GetInMemoryDBMetData()
         {
             MyContext context = GetNewInMemoryDatabase(true);
