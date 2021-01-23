@@ -65,11 +65,56 @@ namespace WDPR_MVC_TESTS
             MyContext context = GetNewInMemoryDatabase(true);
 
             //Replace with other info
-            context.Add(new ApplicationUser { UserName = "Jan", Id = "1234", Email = "test1@email.com", Adres = new Adres { Straatnaam = "De Straat", Huisnummer = 243, Postcode = "1237TK" } });
-            context.Add(new ApplicationUser { UserName = "Smit", Email = "test2@email.com", Adres = new Adres { Straatnaam = "De Weg", Huisnummer = 432, Postcode = "9342YO" } });
-            context.Add(new ApplicationUser { UserName = "Bruh", Email = "test3@email.com", Adres = new Adres { Straatnaam = "De Laan", Huisnummer = 12, Postcode = "4329FY" } });
-            context.Categorieen.Add(new Categorie { Naam = "EchteTestCategorie" });
+            //Users used for testing
+            var user1 = new ApplicationUser
+            {
+                UserName = "Jan",
+                Id = "1234",
+                Email = "test1@email.com",
+                Adres = new Adres { Straatnaam = "De Straat", Huisnummer = 243, Postcode = "1237TK" }
+            };
 
+            var user2 = new ApplicationUser
+           {
+                UserName = "Smit",
+                Email = "test2@email.com",
+                Adres = new Adres { Straatnaam = "De Weg", Huisnummer = 432,
+                    Postcode = "9342YO"
+                }
+            };
+
+            var user3 = new ApplicationUser 
+            { 
+                UserName = "Bruh", 
+                Email = "test3@email.com", 
+                Adres = new Adres { Straatnaam = "De Laan", Huisnummer = 12, Postcode = "4329FY" } 
+            };
+
+            //Categorieën voor testen
+            var EchteTestCategorie = new Categorie { Naam = "EchteTestCategorie" };
+            var NeppeTestCategorie = new Categorie { Naam = "NeppeTestCategorie" };
+
+            //Meldingen voor testen
+            var melding1 = new Melding { Id = 1, Auteur = user1, Titel = "Nieuwe titel", Beschrijving = "Dit is een beschrijving van een paar woorden.", DatumAangemaakt = DateTime.Now, Categorie = EchteTestCategorie};
+            var melding2 = new Melding { Id = 2, Auteur = user2, Titel = "Naam voor de neppe melding", Beschrijving = "Beschrijving voor een nieuwe melding", DatumAangemaakt = DateTime.Now, Categorie = NeppeTestCategorie };
+            var melding3 = new Melding { Id = 3, Auteur = user3, Titel = "Titel voor de echte melding", Beschrijving = "Hier komt de tekst voor een nieuwe melding te staan.", DatumAangemaakt = DateTime.Now, Categorie = EchteTestCategorie };
+
+            //Likes voor melding2, 2 likes
+            var meldingLike1 = new MeldingLike { MeldingId = 2, User = user1 };
+            var meldingLike2 = new MeldingLike { MeldingId = 2, User = user3 };
+            //Likes toevoegen aan de list 'Likes' van melding2
+            melding2.Likes.Add(meldingLike1);
+            melding2.Likes.Add(meldingLike2);
+
+            //Alle test objecten toevoegen aan de 'database'
+            context.Add(user1);
+            context.Add(user2);
+            context.Add(user3);
+            context.Categorieen.Add(EchteTestCategorie);
+            context.Categorieen.Add(NeppeTestCategorie);
+            context.Meldingen.Add(melding1);
+            context.Meldingen.Add(melding2);
+            context.Meldingen.Add(melding3);
             context.SaveChanges();
             return GetNewInMemoryDatabase(false); // gebruik een nieuw (clean) object voor de context
         }

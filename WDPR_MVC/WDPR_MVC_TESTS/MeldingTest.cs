@@ -50,12 +50,13 @@ namespace WDPR_MVC_TESTS
                 Beschrijving = "test",
                 Categorie = db.Categorieen.First(),
                 DatumAangemaakt = tijd,
-                Titel = "testtitel"
-            }); 
-            Assert.Equal(0, db.Meldingen.Count());
+                Titel = "testtitel",
+                Id = 6
+            }); ;
+            Assert.Equal(3, db.Meldingen.Count());
             db.SaveChanges();
-            Assert.Equal(1, db.Meldingen.Count());
-            Assert.Equal("test", db.Meldingen.First().Beschrijving);
+            Assert.Equal(4, db.Meldingen.Count());
+            Assert.Equal("test", db.Meldingen.Find(6).Beschrijving);
         }
 
         [Fact]
@@ -71,10 +72,39 @@ namespace WDPR_MVC_TESTS
                 Titel = "testtitel"
             };
             SetClaimsPrincipal(_mc, "1234");
-            Assert.Equal(0, db.Meldingen.Count());
+            Assert.Equal(3, db.Meldingen.Count());
             await _mc.Create(melding);
-            Assert.Equal(1, db.Meldingen.Count());
+            Assert.Equal(4, db.Meldingen.Count());
 
+        }
+
+        [Fact]
+        public void TestSearchMelding()
+        {
+            CleanMeldingController();
+            Assert.True(db.Meldingen.Any(m => m.Titel == "Nieuwe titel"));
+            SetClaimsPrincipal(_mc, "1234");
+            Assert.Equal(db.Meldingen.Where(m => m.Titel == "Nieuwe titel"), _mc.Search(db.Meldingen, "titel"));
+        }
+
+        [Fact]
+        public void TestSearchMeldingCount()
+        {
+            CleanMeldingController();
+            SetClaimsPrincipal(_mc, "1234");
+            db.Meldingen.Where(m => m.Titel == "Nieuwe titel").Count();
+            var actual = _mc.Search(db.Meldingen, "melding").Count();
+            Assert.Equal(2, actual);
+        }
+
+        [Fact]
+        public void TestSorteerMelding()
+        {
+            CleanMeldingController();
+            SetClaimsPrincipal(_mc, "1234");
+            Assert.Equal(3, db.Meldingen.Count());
+            var actual = _mc.Sort(db.Meldingen, "likes", "desc").First().Id;
+            Assert.Equal(2, actual);
         }
     }
 }

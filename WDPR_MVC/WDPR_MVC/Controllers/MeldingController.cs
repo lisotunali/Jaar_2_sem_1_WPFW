@@ -61,7 +61,7 @@ namespace WDPR_MVC.Controllers
             return View(await PaginatedList<Melding>.CreateAsync(meldingen, page, 10));
         }
 
-        IQueryable<Melding> Search(IQueryable<Melding> meldingen, string search)
+        public IQueryable<Melding> Search(IQueryable<Melding> meldingen, string search)
         {
             if (search == null)
             {
@@ -74,7 +74,7 @@ namespace WDPR_MVC.Controllers
 
         // Er moet gesorteerd kunnen worden op aantal views, aantal likes, en
         // datum.
-        IQueryable<Melding> Sort(IQueryable<Melding> list, string sort, string sortOrder)
+        public IQueryable<Melding> Sort(IQueryable<Melding> list, string sort, string sortOrder)
         {
             return sort?.ToLower() switch
             {
