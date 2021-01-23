@@ -26,8 +26,6 @@ namespace WDPR_MVC.Areas.Identity.Data
             var t = Task.Run(async () =>
             {
                 await _rolemanager.CreateAsync(new IdentityRole { Name = "Mod" });
-                // await _usermanager.AddToRoleAsync(_usermanager.Users.First(m => m.Email == "lisotunali@hotmail.com"), "mod");
-
             });
             t.Wait();
         }

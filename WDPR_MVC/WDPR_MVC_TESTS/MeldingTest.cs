@@ -33,6 +33,11 @@ namespace WDPR_MVC_TESTS
 
         public MeldingTest()
         {
+            CleanContext();
+        }
+
+        public void CleanContext()
+        {
             db = GetInMemoryDBMetData();
             userstore = new UserStore<ApplicationUser>(db);
             rolestore = new RoleStore<IdentityRole>(db);
@@ -45,27 +50,16 @@ namespace WDPR_MVC_TESTS
                 new Claim(ClaimTypes.NameIdentifier, "1234" )
             }, authenticationType: "Basic"));
 
-
             _mc.ControllerContext = new ControllerContext()
             {
                 HttpContext = new DefaultHttpContext() { User = user }
             };
         }
 
-
-
-        [Theory]
-        [InlineData("test1@email.com")]
-        public void Test1(string Emailadres)
-        {
-            var FoundUser = GetInMemoryDBMetData().Users.Any(u => u.Email == Emailadres);
-            Assert.True(FoundUser);
-        }
-
         [Fact]
-        public void TestMelding()
+        public void TestMeldingModel()
         {
-
+            CleanContext();
             var user = db.Users.First();
             DateTime tijd = DateTime.Now;
             db.Meldingen.Add(new WDPR_MVC.Models.Melding
@@ -80,11 +74,12 @@ namespace WDPR_MVC_TESTS
             db.SaveChanges();
             Assert.Equal(1, db.Meldingen.Count());
             Assert.Equal("test", db.Meldingen.First().Beschrijving);
-
         }
+
         [Fact]
         public async void TestMeldingCreate()
         {
+            CleanContext();
             DateTime tijd = DateTime.Now;
             Melding melding = new Melding
             {
